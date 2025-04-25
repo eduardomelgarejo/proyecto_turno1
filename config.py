@@ -5,7 +5,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or os.urandom(24)
 
     # URI para la base de datos (ajusta los datos reales de conexión)
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:@localhost/PlataformaSalud'
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:root@localhost/PlataformaSalud'
     
     # Desactiva el seguimiento de modificaciones (ahorra memoria)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
