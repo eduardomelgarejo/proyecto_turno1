@@ -1,21 +1,44 @@
 # PROYECTO NEXTFLOW
 
-Faltantes:
-- Cambio de turno paciente
-- Revisar los turnos del paciente y que se agregen.
-- Historial de atencion??? (Verificar si funciona) Escalable: y que sea descargable (PDF)
-- alerta de reserva o cambio de hora.
-- Chat_Paciente a profesional.
-    - Funcionen entre si.
-- Panel admin = Funcione el calendario y validacion de horas para que se eviten topones.
-- Ingreso y registrar de boxes.
-- Panel profesional = los dos botones primeros agregar las rutas.
-- Añadir a los formularios los error y confirmacion de registro.
-- Token de session (Flask_session).
+Plataforma web de gestión médica desarrollada en Flask. Este sistema permite agendamiento de turnos, manejo de fichas médicas, atención profesional y administración de boxes médicos.
 
-Escalable:
-- Descargar perfil del medico (PDF).
-- Descargar ficha de paciente (PDF).
-- Validar que es medico con la certificación.
-- Asistente virtual.
-- Recordatorio de cita (Mensaje a correo o wsp).
+## 🚧 Funcionalidades Pendientes
+
+### 🔄 Pacientes
+- [ ] Cambio de turno del paciente.
+- [ ] Visualización y actualización de los turnos del paciente.
+- [ ] Historial de atención:
+  - [ ] Verificar si funciona correctamente.
+  - [ ] Que sea escalable y se pueda descargar en PDF.
+- [ ] Alerta de reserva o cambio de hora.
+
+### 💬 Comunicación
+- [ ] Chat entre paciente y profesional:
+  - [ ] Que ambos puedan comunicarse entre sí.
+
+### 🛠️ Panel de Administración
+- [ ] Validación del calendario:
+  - [ ] Asegurar que no existan topones entre horarios.
+- [ ] Ingreso y registro de boxes médicos.
+
+### 🩺 Panel Profesional
+- [ ] Agregar rutas a los dos primeros botones del panel.
+- [ ] Añadir mensajes de error y confirmación en los formularios.
+
+### 🔐 Seguridad
+- [ ] Implementar token de sesión utilizando `Flask-Session`.
+
+---
+
+## 📈 Escalabilidad (Futuras mejoras)
+
+- [ ] Descargar perfil del médico en PDF.
+- [ ] Descargar ficha del paciente en PDF.
+- [ ] Validar la certificación del médico.
+- [ ] Asistente virtual integrado.
+- [ ] Recordatorio de citas:
+  - [ ] Envío de mensajes a correo o WhatsApp.
+
+---
+
+¿Querés que te genere también un README con markdown listo para copiar y pegar?
