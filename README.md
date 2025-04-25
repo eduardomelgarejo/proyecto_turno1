@@ -39,6 +39,4 @@ Plataforma web de gestión médica desarrollada en Flask. Este sistema permite a
 - [ ] Recordatorio de citas:
   - [ ] Envío de mensajes a correo o WhatsApp.
 
----
 
-¿Querés que te genere también un README con markdown listo para copiar y pegar?
