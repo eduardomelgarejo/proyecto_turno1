@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='images/NextFlow_Logo_blanco.png') }}">
+    <title>Gestión de Profesionales - NEXTFLOW</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/gestionar_profesionales.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="{{ url_for('main.dashboard') }}" class="btn-retroceso">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+            <h1>Gestión de Profesionales</h1>
+        </div>
+        
+        <!-- Formulario de registro -->
+        <div class="form-container">
+            <h2>Registrar Nuevo Profesional</h2>
+            <form action="{{ url_for('main.registrar_profesional') }}" method="POST">
+                <div class="form-group">
+                    <label for="nombre_usuario">Nombre de Usuario:</label>
+                    <input type="text" id="nombre_usuario" name="nombre_usuario" required 
+                           pattern="[a-zA-Z0-9_]{3,20}" 
+                           title="El nombre de usuario debe tener entre 3 y 20 caracteres, solo letras, números y guiones bajos"
+                           placeholder="Ej: Juan">
+                    <small class="error-message" id="nombreUsuarioError"></small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nombre_completo">Nombre Completo:</label>
+                    <input type="text" id="nombre_completo" name="nombre_completo" required 
+                           pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,50}"
+                           title="El nombre debe contener solo letras y espacios"
+                           placeholder="Ej: Juan Pérez">
+                    <small class="error-message" id="nombreCompletoError"></small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="correo">Correo Electrónico:</label>
+                    <input type="email" id="correo" name="correo" required 
+                           pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                           title="Ingrese un correo electrónico válido"
+                           placeholder="Ej: juan@ejemplo.com">
+                    <small class="error-message" id="correoError"></small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="telefono">Teléfono:</label>
+                    <input type="tel" id="telefono" name="telefono" required 
+                           placeholder="9XXXXXXXX" 
+                           pattern="9\d{8}" 
+                           maxlength="9"
+                           title="El teléfono debe comenzar con 9 y tener 9 dígitos">
+                    <small class="error-message" id="telefonoError"></small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contraseña">Contraseña:</label>
+                    <input type="password" id="contraseña" name="contraseña" required 
+                           minlength="6"
+                           title="La contraseña debe tener al menos 6 caracteres"
+                           placeholder="Mínimo 6 caracteres">
+                    <small class="error-message" id="contraseñaError"></small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="especialidad">Especialidad:</label>
+                    <input type="text" id="especialidad" name="especialidad" required 
+                           pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,50}"
+                           title="La especialidad debe contener solo letras y espacios"
+                           placeholder="Ej: Medicina General">
+                    <small class="error-message" id="especialidadError"></small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="perfil">Perfil Profesional:</label>
+                    <textarea id="perfil" name="perfil" rows="4" 
+                              placeholder="Describa la experiencia y formación del profesional"></textarea>
+                </div>
+                
+                <button type="submit" class="btn-registrar">Registrar Profesional</button>
+            </form>
+        </div>
+
+        <!-- Lista de profesionales -->
+        <div class="profesionales-container">
+            <h2>Profesionales Registrados</h2>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Buscar profesional...">
+                <i class="fas fa-search"></i>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Especialidad</th>
+                            <th>Correo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for profesional in profesionales %}
+                        <tr>
+                            <td>{{ profesional.usuario.nombre_completo }}</td>
+                            <td>{{ profesional.especialidad }}</td>
+                            <td>{{ profesional.usuario.correo }}</td>
+                            <td class="acciones">
+                                <a href="{{ url_for('main.ver_ficha_profesional', id=profesional.id_profesional) }}" class="btn-ver">
+                                    <i class="fas fa-eye"></i> Ver Ficha
+                                </a>                               
+                                <button type="button" class="btn-eliminar" data-id="{{ profesional.id_profesional }}">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Función para buscar profesionales
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const searchText = this.value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchText) ? '' : 'none';
+            });
+        });
+
+        // Función para eliminar profesional
+        document.querySelectorAll('.btn-eliminar').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                if (confirm('¿Está seguro de que desea eliminar este profesional?')) {
+                    fetch(`/eliminar_profesional/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Error al eliminar el profesional: ' + (data.message || 'Error desconocido'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al eliminar el profesional. Por favor, intente nuevamente.');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

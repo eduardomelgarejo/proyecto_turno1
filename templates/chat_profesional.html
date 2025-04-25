@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='images/NextFlow_Logo_blanco.png') }}">
+    <title>Chat Profesional - NEXTFLOW</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat_profesional.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Encabezado -->
+        <div class="chat-header">
+            <button class="btn-retroceso" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Volver
+            </button>
+            <h1>Chat con Pacientes</h1>
+        </div>
+
+        <!-- Lista de pacientes -->
+        <div class="pacientes-lista">
+            <div class="busqueda">
+                <input type="text" id="buscarPaciente" placeholder="Buscar paciente...">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="lista" id="listaPacientes">
+                <!-- Los pacientes se cargarán aquí -->
+            </div>
+        </div>
+
+        <!-- Área de chat -->
+        <div class="chat-area">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Los mensajes se cargarán aquí -->
+            </div>
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Escribe un mensaje...">
+                <button id="sendButton">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const chatMessages = document.getElementById('chatMessages');
+            const buscarPaciente = document.getElementById('buscarPaciente');
+            const listaPacientes = document.getElementById('listaPacientes');
+
+            // Función para cargar la lista de pacientes
+            function cargarPacientes() {
+                // Aquí irá la lógica para cargar los pacientes
+                const pacientes = [
+                    { id: 1, nombre: "Juan Pérez", ultimoMensaje: "Hola doctor", hora: "10:30" },
+                    { id: 2, nombre: "María García", ultimoMensaje: "Gracias por la consulta", hora: "09:15" },
+                    { id: 3, nombre: "Carlos López", ultimoMensaje: "Necesito una cita", hora: "Ayer" }
+                ];
+
+                listaPacientes.innerHTML = '';
+                pacientes.forEach(paciente => {
+                    const pacienteElement = document.createElement('div');
+                    pacienteElement.className = 'paciente-item';
+                    pacienteElement.innerHTML = `
+                        <div class="paciente-info">
+                            <h3>${paciente.nombre}</h3>
+                            <p>${paciente.ultimoMensaje}</p>
+                        </div>
+                        <div class="paciente-hora">
+                            <span>${paciente.hora}</span>
+                        </div>
+                    `;
+                    pacienteElement.addEventListener('click', () => seleccionarPaciente(paciente));
+                    listaPacientes.appendChild(pacienteElement);
+                });
+            }
+
+            // Función para seleccionar un paciente
+            function seleccionarPaciente(paciente) {
+                // Remover selección previa
+                document.querySelectorAll('.paciente-item').forEach(item => {
+                    item.classList.remove('seleccionado');
+                });
+                // Agregar selección actual
+                event.currentTarget.classList.add('seleccionado');
+                // Cargar mensajes del paciente
+                cargarMensajes(paciente.id);
+            }
+
+            // Función para cargar mensajes
+            function cargarMensajes(pacienteId) {
+                // Aquí irá la lógica para cargar los mensajes
+                chatMessages.innerHTML = '';
+            }
+
+            // Función para enviar mensaje
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    // Aquí irá la lógica para enviar el mensaje
+                    console.log('Mensaje enviado:', message);
+                    messageInput.value = '';
+                }
+            }
+
+            // Event listeners
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            buscarPaciente.addEventListener('input', function(e) {
+                const busqueda = e.target.value.toLowerCase();
+                document.querySelectorAll('.paciente-item').forEach(item => {
+                    const nombre = item.querySelector('h3').textContent.toLowerCase();
+                    item.style.display = nombre.includes(busqueda) ? 'flex' : 'none';
+                });
+            });
+
+            // Cargar pacientes al iniciar
+            cargarPacientes();
+        });
+    </script>
+</body>
+</html> 

@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_user, login_required, logout_user, current_user
-from models import db, Usuario,TurnoProfesional, Profesional, FichaPaciente, HistorialAtencion, Box
+from models import db, Usuario,TurnoProfesional, Profesional, FichaPaciente, HistorialAtencion, Box, DisponibilidadBox
 from datetime import datetime
 
 
@@ -133,9 +133,7 @@ def gestionar_profesionales():
         return redirect(url_for('main.dashboard'))
     
     # Obtener todos los profesionales con sus datos de usuario
-    profesionales = db.session.query(Profesional, Usuario).join(
-        Usuario, Profesional.id_usuario == Usuario.id_usuario
-    ).all()
+    profesionales = Profesional.query.join(Usuario).all()
     return render_template('gestionar_profesionales.html', profesionales=profesionales)
 
 @main_bp.route('/gestionar_turnos')
@@ -229,13 +227,254 @@ def agendamiento_boxes():
         flash('No tienes permisos para acceder a esta página', 'danger')
         return redirect(url_for('main.dashboard'))
     
-    # Obtener todos los boxes y profesionales
+    # Obtener todos los boxes
     boxes = Box.query.all()
-    profesionales = db.session.query(Profesional, Usuario).join(
-        Usuario, Profesional.id_usuario == Usuario.id_usuario
-    ).all()
+    
+    # Obtener profesionales con sus datos de usuario
+    profesionales = Profesional.query.join(Usuario).all()
     
     return render_template('agendamiento_boxes.html', boxes=boxes, profesionales=profesionales)
+
+@main_bp.route('/ver_ficha_profesional/<int:id>')
+@login_required
+def ver_ficha_profesional(id):
+    # Verificar que el usuario sea administrador
+    if current_user.tipo_usuario != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('main.dashboard'))
+    
+    # Obtener el profesional y sus datos
+    profesional = Profesional.query.get_or_404(id)
+    return render_template('ficha_profesional.html', profesional=profesional)
+
+@main_bp.route('/registrar_profesional', methods=['POST'])
+@login_required
+def registrar_profesional():
+    # Verificar que el usuario sea administrador
+    if current_user.tipo_usuario != 'admin':
+        flash('No tienes permisos para realizar esta acción', 'danger')
+        return redirect(url_for('main.dashboard'))
+    
+    try:
+        # Obtener datos del formulario
+        nombre_usuario = request.form['nombre_usuario']
+        nombre_completo = request.form['nombre_completo']
+        correo = request.form['correo']
+        telefono = request.form['telefono']
+        contraseña = request.form['contraseña']
+        especialidad = request.form['especialidad']
+        perfil = request.form['perfil']
+
+        # Verificar si el nombre de usuario ya existe
+        if Usuario.query.filter_by(nombre_usuario=nombre_usuario).first():
+            flash('El nombre de usuario ya está en uso', 'warning')
+            return redirect(url_for('main.gestionar_profesionales'))
+
+        # Verificar si el correo ya existe
+        if Usuario.query.filter_by(correo=correo).first():
+            flash('El correo electrónico ya está en uso', 'warning')
+            return redirect(url_for('main.gestionar_profesionales'))
+
+        # Crear nuevo usuario
+        nuevo_usuario = Usuario(
+            nombre_usuario=nombre_usuario,
+            nombre_completo=nombre_completo,
+            correo=correo,
+            telefono=telefono,
+            tipo_usuario='profesional'
+        )
+        nuevo_usuario.set_password(contraseña)
+        db.session.add(nuevo_usuario)
+        db.session.flush()  # Para obtener el ID del usuario
+
+        # Crear nuevo profesional
+        nuevo_profesional = Profesional(
+            id_usuario=nuevo_usuario.id_usuario,
+            especialidad=especialidad,
+            perfil=perfil
+        )
+        db.session.add(nuevo_profesional)
+        db.session.commit()
+
+        flash('¡Profesional registrado exitosamente!', 'success')
+        return redirect(url_for('main.gestionar_profesionales'))
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al registrar el profesional: {str(e)}', 'danger')
+        return redirect(url_for('main.gestionar_profesionales'))
+
+@main_bp.route('/editar_profesional/<int:id>', methods=['GET', 'POST'])
+@login_required
+def editar_profesional(id):
+    # Verificar que el usuario sea administrador
+    if current_user.tipo_usuario != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('main.dashboard'))
+    
+    # Obtener el profesional
+    profesional = Profesional.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        try:
+            # Actualizar datos del usuario
+            profesional.usuario.nombre_completo = request.form['nombre_completo']
+            profesional.usuario.correo = request.form['correo']
+            profesional.usuario.telefono = request.form['telefono']
+            
+            # Actualizar datos del profesional
+            profesional.especialidad = request.form['especialidad']
+            profesional.perfil = request.form['perfil']
+            
+            # Si se proporcionó una nueva contraseña, actualizarla
+            if request.form.get('contraseña'):
+                profesional.usuario.set_password(request.form['contraseña'])
+            
+            db.session.commit()
+            flash('Profesional actualizado exitosamente', 'success')
+            return redirect(url_for('main.gestionar_profesionales'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar el profesional: {str(e)}', 'danger')
+            return redirect(url_for('main.gestionar_profesionales'))
+    
+    return render_template('editar_profesional.html', profesional=profesional)
+
+@main_bp.route('/eliminar_profesional/<int:id>', methods=['POST'])
+@login_required
+def eliminar_profesional(id):
+    # Verificar que el usuario sea administrador
+    if current_user.tipo_usuario != 'admin':
+        return jsonify({'success': False, 'message': 'No tienes permisos para realizar esta acción'})
+    
+    try:
+        # Obtener el profesional
+        profesional = Profesional.query.get_or_404(id)
+        
+        # Obtener el usuario asociado
+        usuario = profesional.usuario
+        
+        # Eliminar el profesional
+        db.session.delete(profesional)
+        
+        # Eliminar el usuario
+        db.session.delete(usuario)
+        
+        # Guardar los cambios
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Profesional eliminado exitosamente'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error al eliminar el profesional: {str(e)}'})
+
+@main_bp.route('/agendar_box', methods=['POST'])
+@login_required
+def agendar_box():
+    # Verificar que el usuario sea administrador
+    if current_user.tipo_usuario != 'admin':
+        return jsonify({'success': False, 'message': 'No tienes permisos para realizar esta acción'})
+    
+    try:
+        # Obtener datos del agendamiento
+        data = request.get_json()
+        box_id = data.get('box_id')
+        fecha = data.get('fecha')
+        hora_inicio = data.get('hora_inicio')
+        hora_fin = data.get('hora_fin')
+        profesional_id = data.get('profesional_id')
+
+        # Verificar que todos los campos necesarios estén presentes
+        if not all([box_id, fecha, hora_inicio, hora_fin, profesional_id]):
+            return jsonify({'success': False, 'message': 'Faltan datos requeridos'})
+
+        # Verificar si el box está disponible en ese horario
+        disponibilidad_existente = DisponibilidadBox.query.filter_by(
+            id_box=box_id,
+            fecha=fecha
+        ).filter(
+            (DisponibilidadBox.hora_inicio <= hora_inicio) & (DisponibilidadBox.hora_fin >= hora_inicio) |
+            (DisponibilidadBox.hora_inicio <= hora_fin) & (DisponibilidadBox.hora_fin >= hora_fin)
+        ).first()
+
+        if disponibilidad_existente:
+            return jsonify({'success': False, 'message': 'El box ya está ocupado en ese horario'})
+
+        # Crear nuevo agendamiento
+        nuevo_agendamiento = DisponibilidadBox(
+            id_box=box_id,
+            fecha=fecha,
+            hora_inicio=hora_inicio,
+            hora_fin=hora_fin
+        )
+        db.session.add(nuevo_agendamiento)
+        db.session.commit()
+
+        return jsonify({'success': True, 'message': 'Agendamiento realizado con éxito'})
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error al realizar el agendamiento: {str(e)}'})
+
+@main_bp.route('/crear_boxes', methods=['POST'])
+@login_required
+def crear_boxes():
+    # Verificar que el usuario sea administrador
+    if current_user.tipo_usuario != 'admin':
+        return jsonify({'success': False, 'message': 'No tienes permisos para realizar esta acción'})
+    
+    try:
+        # Crear 5 boxes de ejemplo
+        boxes = [
+            Box(
+                tipo_box='Consulta General',
+                capacidad=1,
+                equipamiento='Mesa de examen, Silla, Computador',
+                disponible=True
+            ),
+            Box(
+                tipo_box='Procedimientos',
+                capacidad=2,
+                equipamiento='Mesa de procedimientos, Equipamiento médico, Monitor',
+                disponible=True
+            ),
+            Box(
+                tipo_box='Urgencias',
+                capacidad=3,
+                equipamiento='Cama de emergencia, Equipamiento de reanimación, Monitor',
+                disponible=True
+            ),
+            Box(
+                tipo_box='Consulta Especializada',
+                capacidad=1,
+                equipamiento='Mesa de examen, Equipamiento especializado',
+                disponible=True
+            ),
+            Box(
+                tipo_box='Procedimientos Menores',
+                capacidad=2,
+                equipamiento='Mesa de procedimientos, Equipamiento básico',
+                disponible=True
+            )
+        ]
+        
+        # Agregar los boxes a la base de datos
+        for box in boxes:
+            db.session.add(box)
+        
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Boxes creados exitosamente'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error al crear los boxes: {str(e)}'})
+
+@main_bp.route('/chat_profesional')
+@login_required
+def chat_profesional():
+    return render_template('chat_profesional.html')
 
 
 

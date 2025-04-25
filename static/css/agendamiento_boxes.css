@@ -305,6 +305,32 @@ body {
     color: var(--secondary-color);
 }
 
+.horario-seleccion {
+    margin: 1rem 0;
+}
+
+.horario-seleccion label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.horario-seleccion input[type="time"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--calendar-border);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.horario-seleccion input[type="time"]:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
 .btn-confirmar {
     width: 100%;
     padding: 1rem;
@@ -330,23 +356,25 @@ body {
     font-size: 1.1rem;
 }
 
-/* Estilos del Calendario Grande */
+/* Estilos del Calendario */
 .calendario-grande-section {
     background-color: var(--calendar-bg);
     border-radius: var(--border-radius);
-    padding: 1.5rem;
+    padding: 1.2rem;
     box-shadow: var(--box-shadow);
     border: 1px solid var(--calendar-border);
     margin-top: 0;
     margin-bottom: 0;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
 .calendario-grande-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--calendar-border);
 }
 
@@ -383,8 +411,8 @@ body {
 .dias-semana {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    gap: 0.4rem;
+    margin-bottom: 0.6rem;
     text-align: center;
     font-weight: 600;
     color: var(--primary-color);
@@ -392,13 +420,14 @@ body {
 
 .dias-semana span {
     padding: 0.3rem;
-    font-size: 0.9rem;
+    font-size: 1rem;
 }
 
 .calendario-grande-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 0.5rem;
+    min-height: 600px;
 }
 
 .dia-grande {
@@ -414,38 +443,33 @@ body {
     border: 1px solid var(--calendar-border);
     padding: 0.5rem;
     position: relative;
+    min-height: 120px;
+    max-height: 120px;
+    overflow-y: auto;
 }
 
 .dia-grande:hover {
     background-color: var(--calendar-hover);
-    transform: translateY(-5px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .dia-grande .numero {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 600;
     color: var(--primary-color);
-    margin-bottom: 0.3rem;
-}
-
-.dia-grande .eventos {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
+    margin-bottom: 0.5rem;
+    position: sticky;
+    top: 0;
+    background-color: var(--white);
     width: 100%;
+    text-align: center;
+    padding: 0.2rem 0;
 }
 
-.dia-grande .evento {
-    background: var(--secondary-color);
-    color: var(--white);
-    padding: 0.3rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.dia-grande.hoy {
+    background-color: var(--calendar-today);
+    border-color: var(--secondary-color);
 }
 
 .dia-grande.seleccionado {
@@ -456,11 +480,6 @@ body {
 
 .dia-grande.seleccionado .numero {
     color: var(--white);
-}
-
-.dia-grande.hoy {
-    background-color: var(--calendar-today);
-    border-color: var(--secondary-color);
 }
 
 .dia-grande.deshabilitado {
@@ -475,11 +494,96 @@ body {
     box-shadow: none;
 }
 
+/* Estilos para los eventos del calendario */
+.dia-grande .eventos {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    width: 100%;
+    margin-top: 0.3rem;
+    overflow-y: auto;
+}
+
+.dia-grande .evento {
+    background: var(--secondary-color);
+    color: var(--white);
+    padding: 0.3rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.dia-grande .evento:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.dia-grande .evento-hora {
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.dia-grande .evento-profesional {
+    font-size: 0.75rem;
+    opacity: 0.9;
+}
+
+.dia-grande .evento-estado {
+    font-size: 0.7rem;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    margin-top: 0.2rem;
+    text-transform: capitalize;
+}
+
+.dia-grande .evento-estado.disponible {
+    background-color: #2ecc71;
+}
+
+.dia-grande .evento-estado.ocupado {
+    background-color: #e74c3c;
+}
+
+.dia-grande .evento-estado.mantenimiento {
+    background-color: #f39c12;
+}
+
 /* Estilos para el box seleccionado */
 .box-card.seleccionado {
-    border: 2px solid var(--secondary-color);
-    transform: translateY(-5px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 2px solid #3498db;
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+}
+
+.box-card.seleccionado .btn-agendar {
+    background-color: #2ecc71;
+}
+
+.box-card.seleccionado .btn-agendar:hover {
+    background-color: #27ae60;
+}
+
+.seleccion-box-message {
+    grid-column: 1 / -1;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 1rem;
+    display: none;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.seleccion-box-message i {
+    margin-right: 0.5rem;
+    color: #3498db;
 }
 
 /* Responsive */
@@ -513,16 +617,29 @@ body {
     }
 
     .dia-grande {
-        padding: 0.5rem;
+        min-height: 80px;
+        padding: 0.3rem;
     }
 
     .dia-grande .numero {
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
 
     .dia-grande .evento {
         font-size: 0.7rem;
         padding: 0.2rem 0.3rem;
+    }
+
+    .dia-grande .evento-hora {
+        font-size: 0.65rem;
+    }
+
+    .dia-grande .evento-profesional {
+        font-size: 0.6rem;
+    }
+
+    .dia-grande .evento-estado {
+        font-size: 0.55rem;
     }
 
     .boxes-grid {
@@ -531,6 +648,27 @@ body {
 
     .filtros-boxes {
         flex-direction: column;
+    }
+
+    .calendario-grande-section {
+        padding: 1rem;
+    }
+
+    .calendario-grande-header h2 {
+        font-size: 1.3rem;
+    }
+
+    .btn-calendario-grande {
+        width: 35px;
+        height: 35px;
+    }
+
+    .btn-calendario-grande i {
+        font-size: 1.1rem;
+    }
+
+    .dias-semana span {
+        font-size: 0.9rem;
     }
 }
 
@@ -583,4 +721,48 @@ body {
         margin: 10% auto;
         padding: 1.5rem;
     }
+}
+
+.dia-grande.tiene-eventos {
+    background-color: #e3f2fd;
+    border: 2px solid var(--secondary-color);
+}
+
+.dia-grande.tiene-eventos .numero {
+    color: var(--secondary-color);
+    font-weight: 700;
+}
+
+.dia-grande .evento {
+    background: var(--secondary-color);
+    color: var(--white);
+    padding: 0.3rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    margin-bottom: 0.2rem;
+}
+
+.dia-grande .evento:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    background: #2980b9;
+}
+
+.dia-grande .evento-hora {
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+    font-size: 0.75rem;
+}
+
+.dia-grande .evento-profesional {
+    font-size: 0.7rem;
+    opacity: 0.9;
 } 

@@ -25,44 +25,87 @@
         <div class="boxes-section">
             <!-- Filtros de boxes -->
             <div class="filtros-boxes">
+                <!-- Filtro de box -->
+                <div class="filtro-box">
+                    <label for="box">Box Médico:</label>
+                    <select id="box" class="select-custom">
+                        <option value="">Selecciona un box</option>
+                        {% for box in boxes %}
+                        <option value="{{ box.id_box }}" 
+                                data-tipo="{{ box.tipo_box }}"
+                                data-capacidad="{{ box.capacidad }}"
+                                data-equipamiento="{{ box.equipamiento }}">
+                            Box {{ box.id_box }} - {{ box.tipo_box }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
                 <!-- Filtro de profesional -->
                 <div class="filtro-profesional">
                     <label for="profesional">Profesional:</label>
                     <select id="profesional" class="select-custom">
-                        <option value="">Todos los profesionales</option>
+                        <option value="">Selecciona un profesional</option>
                         {% for profesional in profesionales %}
-                        <option value="{{ profesional.id }}">{{ profesional.nombre }}</option>
+                        <option value="{{ profesional.id_profesional }}">
+                            {{ profesional.usuario.nombre_completo }} - {{ profesional.especialidad }}
+                        </option>
                         {% endfor %}
-                    </select>
-                </div>
-                    <!-- Filtro de estado -->
-                <div class="filtro-estado">
-                    <label for="estado">Estado:</label>
-                    <select id="estado" class="select-custom">
-                        <option value="disponible">Disponible</option>
-                        <option value="ocupado">Ocupado</option>
-                        <option value="mantenimiento">En Mantenimiento</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Grilla de boxes -->
-            <div class="boxes-grid">
-                {% for box in boxes %}
-                <div class="box-card" data-box-id="{{ box.id }}">
-                    <div class="box-header">
-                        <h3>Box {{ box.numero }}</h3>
-                        <span class="box-estado {{ box.estado }}">{{ box.estado }}</span>
-                    </div>
-                    <div class="box-info">
-                        <p><strong>Profesional:</strong> <span class="profesional-nombre">{{ box.profesional }}</span></p>
-                        <p><strong>Horario:</strong> <span class="horario-box">{{ box.horario_inicio }} - {{ box.horario_fin }}</span></p>
-                    </div>
-                    <button class="btn-agendar" data-box-id="{{ box.id }}">Agendar</button>
+            <!-- Información del box seleccionado -->
+            <div id="boxInfo" class="box-info-container" style="display: none;">
+                <div class="box-info-header">
+                    <h3>Información del Box</h3>
                 </div>
-                {% endfor %}
+                <div class="box-info-content">
+                    <p><strong>Tipo:</strong> <span id="boxTipo"></span></p>
+                    <p><strong>Capacidad:</strong> <span id="boxCapacidad"></span> personas</p>
+                    <p><strong>Equipamiento:</strong> <span id="boxEquipamiento"></span></p>
+                </div>
             </div>
         </div>
+
+        <style>
+        .box-info-container {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-top: 1rem;
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--calendar-border);
+        }
+
+        .box-info-header {
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--calendar-border);
+        }
+
+        .box-info-header h3 {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .box-info-content {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .box-info-content p {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .box-info-content strong {
+            color: var(--primary-color);
+            min-width: 100px;
+        }
+        </style>
 
         <!-- Calendario grande -->
         <div class="calendario-grande-section">
@@ -98,133 +141,348 @@
             <span class="close">&times;</span>
             <h2>Confirmar Agendamiento</h2>
             <div class="confirmacion-info">
-                <p><strong>Box:</strong> <span id="boxSeleccionado"></span></p>
                 <p><strong>Profesional:</strong> <span id="profesionalSeleccionado"></span></p>
+                <p><strong>Box:</strong> <span id="boxSeleccionado"></span></p>
                 <p><strong>Fecha:</strong> <span id="fechaSeleccionada"></span></p>
-                <p><strong>Horario:</strong> <span id="horarioSeleccionado"></span></p>
+                <div class="horario-seleccion">
+                    <label for="horaInicio">Hora de Inicio:</label>
+                    <input type="time" id="horaInicio" name="horaInicio" required>
+                </div>
+                <div class="horario-seleccion">
+                    <label for="horaFin">Hora de Fin:</label>
+                    <input type="time" id="horaFin" name="horaFin" required>
+                </div>
             </div>
-            <button class="btn-confirmar">Confirmar</button>
+            <button class="btn-confirmar" id="btnConfirmarAgendamiento">Confirmar</button>
         </div>
     </div>
 
     <script>
-        // Variables globales
-        let fechaActual = new Date();
-        let boxSeleccionado = null;
-        let fechaSeleccionada = null;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables globales
+            let fechaActual = new Date();
+            let fechaSeleccionada = null;
+            let boxSeleccionado = null;
+            let profesionalSeleccionado = null;
+            let eventos = []; // Array para almacenar los eventos
 
-        // Función para generar el calendario
-        function generarCalendario() {
-            const calendario = document.getElementById('calendarioGrande');
-            const mesActual = document.getElementById('mesActualGrande');
-            
-            // Obtener el primer día del mes
-            const primerDia = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 1);
-            // Obtener el último día del mes
-            const ultimoDia = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0);
-            
-            // Actualizar el título del mes
-            const opciones = { month: 'long', year: 'numeric' };
-            mesActual.textContent = fechaActual.toLocaleDateString('es-ES', opciones);
-            
-            // Limpiar el calendario
-            calendario.innerHTML = '';
-            
-            // Agregar días vacíos hasta el primer día del mes
-            for (let i = 0; i < primerDia.getDay(); i++) {
-                const diaVacio = document.createElement('div');
-                diaVacio.className = 'dia-grande deshabilitado';
-                calendario.appendChild(diaVacio);
+            // Función para cerrar el modal
+            function cerrarModal() {
+                const modal = document.getElementById('modalAgendamiento');
+                modal.style.display = 'none';
+                // Limpiar los campos
+                document.getElementById('horaInicio').value = '';
+                document.getElementById('horaFin').value = '';
+                // Remover la selección del día
+                document.querySelectorAll('.dia-grande').forEach(d => {
+                    d.classList.remove('seleccionado');
+                });
             }
-            
-            // Agregar los días del mes
-            for (let dia = 1; dia <= ultimoDia.getDate(); dia++) {
-                const diaElement = document.createElement('div');
-                diaElement.className = 'dia-grande';
-                diaElement.innerHTML = `
-                    <div class="numero">${dia}</div>
-                    <div class="eventos"></div>
-                `;
+
+            // Event listener para el botón de cerrar
+            document.querySelector('.close').addEventListener('click', cerrarModal);
+
+            // Event listener para cerrar el modal al hacer clic fuera de él
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('modalAgendamiento');
+                if (event.target === modal) {
+                    cerrarModal();
+                }
+            });
+
+            // Función para cargar los eventos del box seleccionado
+            function cargarEventosBox() {
+                if (!boxSeleccionado) return;
                 
-                // Marcar el día actual 
-                if (dia === new Date().getDate() && // Si el día es el actual   
-                    fechaActual.getMonth() === new Date().getMonth() && // Si el mes es el actual
-                    fechaActual.getFullYear() === new Date().getFullYear()) { // Si el año es el actual
-                    diaElement.classList.add('hoy'); // Agregar la clase 'hoy' al día actual
+                fetch(`/obtener_eventos_box/${boxSeleccionado}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            eventos = data.eventos;
+                            generarCalendario();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al cargar eventos:', error);
+                    });
+            }
+
+            // Función para verificar si hay conflicto de horarios en el mismo box
+            function hayConflictoHorario(fecha, horaInicio, horaFin, boxId) {
+                return eventos.some(evento => {
+                    if (evento.fecha === fecha && evento.box_id === boxId) {
+                        // Convertir horas a minutos para facilitar la comparación
+                        const inicioNuevo = convertirHoraAMinutos(horaInicio);
+                        const finNuevo = convertirHoraAMinutos(horaFin);
+                        const inicioExistente = convertirHoraAMinutos(evento.hora_inicio);
+                        const finExistente = convertirHoraAMinutos(evento.hora_fin);
+
+                        // Verificar si hay solapamiento
+                        return (inicioNuevo >= inicioExistente && inicioNuevo < finExistente) ||
+                               (finNuevo > inicioExistente && finNuevo <= finExistente) ||
+                               (inicioNuevo <= inicioExistente && finNuevo >= finExistente);
+                    }
+                    return false;
+                });
+            }
+
+            // Función para convertir hora a minutos
+            function convertirHoraAMinutos(hora) {
+                const [horas, minutos] = hora.split(':').map(Number);
+                return horas * 60 + minutos;
+            }
+
+            // Función para generar el calendario
+            function generarCalendario() {
+                const calendario = document.getElementById('calendarioGrande');
+                const mesActual = document.getElementById('mesActualGrande');
+                
+                if (!calendario || !mesActual) {
+                    console.error('No se encontraron los elementos del calendario');
+                    return;
                 }
                 
-                // Agregar evento click
-                diaElement.addEventListener('click', () => seleccionarDia(dia)); // Agregar un evento click al día
+                // Obtener el primer día del mes
+                const primerDia = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 1);
+                // Obtener el último día del mes
+                const ultimoDia = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0);
                 
-                calendario.appendChild(diaElement); // Agregar el día al calendario
+                // Actualizar el título del mes
+                const opciones = { month: 'long', year: 'numeric' };
+                mesActual.textContent = fechaActual.toLocaleDateString('es-ES', opciones);
+                
+                // Limpiar el calendario
+                calendario.innerHTML = '';
+                
+                // Ajustar el primer día para que comience en lunes (0 = lunes, 6 = domingo)
+                let primerDiaSemana = primerDia.getDay();
+                if (primerDiaSemana === 0) primerDiaSemana = 7; // Si es domingo, lo cambiamos a 7
+                primerDiaSemana--; // Ajustamos para que comience en lunes
+                
+                // Agregar días vacíos hasta el primer día del mes
+                for (let i = 0; i < primerDiaSemana; i++) {
+                    const diaVacio = document.createElement('div');
+                    diaVacio.className = 'dia-grande deshabilitado';
+                    diaVacio.innerHTML = '<div class="numero"></div>';
+                    calendario.appendChild(diaVacio);
+                }
+                
+                // Agregar los días del mes
+                for (let dia = 1; dia <= ultimoDia.getDate(); dia++) {
+                    const diaElement = document.createElement('div');
+                    diaElement.className = 'dia-grande';
+                    
+                    // Crear el contenedor del número del día
+                    const numeroDia = document.createElement('div');
+                    numeroDia.className = 'numero';
+                    numeroDia.textContent = dia;
+                    
+                    // Crear el contenedor de eventos
+                    const eventosContainer = document.createElement('div');
+                    eventosContainer.className = 'eventos';
+                    
+                    // Agregar el número y el contenedor de eventos al día
+                    diaElement.appendChild(numeroDia);
+                    diaElement.appendChild(eventosContainer);
+                    
+                    // Marcar el día actual 
+                    if (dia === new Date().getDate() && 
+                        fechaActual.getMonth() === new Date().getMonth() && 
+                        fechaActual.getFullYear() === new Date().getFullYear()) {
+                        diaElement.classList.add('hoy');
+                    }
+                    
+                    // Agregar evento click
+                    diaElement.addEventListener('click', () => {
+                        if (!boxSeleccionado) {
+                            alert('Por favor, selecciona un box primero');
+                            return;
+                        }
+                        if (!profesionalSeleccionado) {
+                            alert('Por favor, selecciona un profesional');
+                            return;
+                        }
+                        // Remover selección previa
+                        document.querySelectorAll('.dia-grande').forEach(d => {
+                            d.classList.remove('seleccionado');
+                        });
+                        // Agregar selección actual
+                        diaElement.classList.add('seleccionado');
+                        seleccionarDia(dia);
+                    });
+                    
+                    // Agregar eventos del día
+                    const fecha = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), dia);
+                    const eventosDelDia = eventos.filter(evento => {
+                        const eventoFecha = new Date(evento.fecha);
+                        return eventoFecha.getDate() === dia && 
+                               eventoFecha.getMonth() === fechaActual.getMonth() && 
+                               eventoFecha.getFullYear() === fechaActual.getFullYear();
+                    });
+                    
+                    if (eventosDelDia.length > 0) {
+                        diaElement.classList.add('tiene-eventos');
+                        eventosDelDia.forEach(evento => {
+                            const eventoElement = document.createElement('div');
+                            eventoElement.className = 'evento';
+                            eventoElement.innerHTML = `
+                                <div class="evento-hora">${evento.hora_inicio} - ${evento.hora_fin}</div>
+                                <div class="evento-profesional">${evento.profesional_nombre}</div>
+                            `;
+                            eventosContainer.appendChild(eventoElement);
+                        });
+                    }
+                    
+                    calendario.appendChild(diaElement);
+                }
             }
-        }
 
-        // Función para seleccionar un día
-        function seleccionarDia(dia) {
-            if (!boxSeleccionado) { // Si no hay un box seleccionado
-                alert('Por favor, selecciona un box primero'); // Mostrar un mensaje de error
-                return; // Salir de la función
-            }
-
-            const fecha = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), dia); // Crear una fecha con el año, mes y día actual
-            fechaSeleccionada = fecha; // Asignar la fecha seleccionada
-
-            // Actualizar el modal
-            document.getElementById('boxSeleccionado').textContent = `Box ${boxSeleccionado}`; // Actualizar el texto del box seleccionado
-            document.getElementById('profesionalSeleccionado').textContent = 
-                document.querySelector(`.box-card[data-box-id="${boxSeleccionado}"] .profesional-nombre`).textContent; // Actualizar el texto del profesional seleccionado
-            document.getElementById('fechaSeleccionada').textContent = fecha.toLocaleDateString('es-ES', { // Actualizar el texto de la fecha seleccionada
-                weekday: 'long', // Formato de la fecha
-                year: 'numeric', // Formato de la fecha
-                month: 'long', // Formato de la fecha
-                day: 'numeric' // Formato de la fecha
+            // Event listener para el selector de box
+            document.getElementById('box').addEventListener('change', function() {
+                const boxInfo = document.getElementById('boxInfo');
+                const selectedOption = this.options[this.selectedIndex];
+                
+                if (this.value) {
+                    boxSeleccionado = this.value;
+                    // Mostrar información del box
+                    document.getElementById('boxTipo').textContent = selectedOption.dataset.tipo;
+                    document.getElementById('boxCapacidad').textContent = selectedOption.dataset.capacidad;
+                    document.getElementById('boxEquipamiento').textContent = selectedOption.dataset.equipamiento;
+                    boxInfo.style.display = 'block';
+                    // Cargar eventos del box seleccionado
+                    cargarEventosBox();
+                } else {
+                    boxSeleccionado = null;
+                    boxInfo.style.display = 'none';
+                    eventos = [];
+                    generarCalendario();
+                }
             });
-            document.getElementById('horarioSeleccionado').textContent = 
-                document.querySelector(`.box-card[data-box-id="${boxSeleccionado}"] .horario-box`).textContent; // Actualizar el texto del horario seleccionado
 
-            // Mostrar el modal
-            document.getElementById('modalAgendamiento').style.display = 'block'; // Mostrar el modal
-        }
+            // Función para seleccionar un día
+            function seleccionarDia(dia) {
+                const profesionalSelect = document.getElementById('profesional');
+                const boxSelect = document.getElementById('box');
 
-        // Event listeners para los botones de navegación del calendario
-        document.getElementById('prevMonthGrande').addEventListener('click', () => {
-            fechaActual.setMonth(fechaActual.getMonth() - 1); // Cambiar al mes anterior
-            generarCalendario(); // Generar el calendario
-        });
+                if (!boxSelect.value) {
+                    alert('Por favor, selecciona un box');
+                    return;
+                }
 
-        document.getElementById('nextMonthGrande').addEventListener('click', () => {
-            fechaActual.setMonth(fechaActual.getMonth() + 1); // Cambiar al mes siguiente
-            generarCalendario(); // Generar el calendario
-        });
+                if (!profesionalSelect.value) {
+                    alert('Por favor, selecciona un profesional');
+                    return;
+                }
 
-        // Event listeners para los botones de agendamiento
-        document.querySelectorAll('.btn-agendar').forEach(button => {
-            button.addEventListener('click', function() {
-                boxSeleccionado = this.getAttribute('data-box-id'); // Obtener el id del box seleccionado
-                // Remover selección previa
-                document.querySelectorAll('.box-card').forEach(card => {
-                    card.classList.remove('seleccionado');
+                const fecha = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), dia);
+                fechaSeleccionada = fecha;
+                profesionalSeleccionado = profesionalSelect.value;
+                boxSeleccionado = boxSelect.value;
+
+                // Actualizar el modal
+                document.getElementById('profesionalSeleccionado').textContent = 
+                    profesionalSelect.options[profesionalSelect.selectedIndex].text;
+                document.getElementById('boxSeleccionado').textContent = 
+                    `Box ${boxSelect.value} - ${boxSelect.options[boxSelect.selectedIndex].dataset.tipo}`;
+                document.getElementById('fechaSeleccionada').textContent = fecha.toLocaleDateString('es-ES', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
                 });
-                // Agregar selección actual
-                this.closest('.box-card').classList.add('seleccionado'); // Agregar la clase 'seleccionado' al box seleccionado
+
+                // Mostrar el modal
+                document.getElementById('modalAgendamiento').style.display = 'block';
+            }
+
+            // Event listeners para los botones de navegación del calendario
+            document.getElementById('prevMonthGrande').addEventListener('click', () => {
+                fechaActual.setMonth(fechaActual.getMonth() - 1);
+                generarCalendario();
             });
-        });
 
-        // Cerrar el modal
-        document.querySelector('.close').addEventListener('click', function() {
-            document.getElementById('modalAgendamiento').style.display = 'none'; // Cerrar el modal de confirmación de agendamiento 
-        });
+            document.getElementById('nextMonthGrande').addEventListener('click', () => {
+                fechaActual.setMonth(fechaActual.getMonth() + 1);
+                generarCalendario();
+            });
 
-        // Confirmar agendamiento
-        document.querySelector('.btn-confirmar').addEventListener('click', function() {
-            // Aquí iría la lógica para enviar el agendamiento al servidor
-            alert('Agendamiento confirmado'); // Mostrar un mensaje de confirmación
-            document.getElementById('modalAgendamiento').style.display = 'none'; // Cerrar el modal de confirmación de agendamiento 
-        });
+            // Event listeners para los selectores
+            document.getElementById('profesional').addEventListener('change', function() {
+                profesionalSeleccionado = this.value;
+            });
 
-        // Inicializar el calendario
-        generarCalendario(); // Generar el calendario   
+            // Event listeners para los botones de agendamiento
+            document.getElementById('btnConfirmarAgendamiento').addEventListener('click', function() {
+                const horaInicio = document.getElementById('horaInicio').value;
+                const horaFin = document.getElementById('horaFin').value;
+                const profesionalSelect = document.getElementById('profesional');
+
+                if (!horaInicio || !horaFin) {
+                    alert('Por favor, selecciona las horas de inicio y fin');
+                    return;
+                }
+
+                // Verificar que la hora de fin sea mayor que la hora de inicio
+                if (convertirHoraAMinutos(horaFin) <= convertirHoraAMinutos(horaInicio)) {
+                    alert('La hora de fin debe ser mayor que la hora de inicio');
+                    return;
+                }
+
+                // Verificar si hay conflicto de horarios en el mismo box
+                const fechaStr = fechaSeleccionada.toISOString().split('T')[0];
+                if (hayConflictoHorario(fechaStr, horaInicio, horaFin, boxSeleccionado)) {
+                    alert('El box ya está ocupado en ese horario');
+                    return;
+                }
+
+                // Crear el objeto de agendamiento
+                const agendamiento = {
+                    fecha: fechaStr,
+                    hora_inicio: horaInicio,
+                    hora_fin: horaFin,
+                    box_id: boxSeleccionado,
+                    profesional_id: profesionalSeleccionado,
+                    profesional_nombre: profesionalSelect.options[profesionalSelect.selectedIndex].text,
+                    estado: 'ocupado' // Estado fijo como ocupado
+                };
+
+                console.log('Datos del agendamiento:', agendamiento);
+
+                // Enviar el agendamiento al servidor
+                fetch('/agendar_box', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(agendamiento)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Agregar el evento al array local
+                        eventos.push(agendamiento);
+                        // Actualizar el calendario
+                        generarCalendario();
+                        // Cerrar el modal
+                        document.getElementById('modalAgendamiento').style.display = 'none';
+                        // Limpiar los campos
+                        document.getElementById('horaInicio').value = '';
+                        document.getElementById('horaFin').value = '';
+                        alert('Agendamiento realizado con éxito');
+                    } else {
+                        alert('Error al realizar el agendamiento: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al realizar el agendamiento');
+                });
+            });
+
+            // Inicializar el calendario
+            console.log('Inicializando calendario...');
+            generarCalendario();
+        });
     </script>
 </body>
 </html>

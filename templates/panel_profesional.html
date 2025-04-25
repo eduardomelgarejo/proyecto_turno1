@@ -11,29 +11,24 @@
 <body>
     <div class="profesional-container">
         <h1>Bienvenido al Panel Profesional</h1>
-        <ul>
-            <li>
-                <!-- Botón para ver los turnos -->
-                <a href="{{ url_for('main.gestionar_turnos') }}">
-                    <i class="fas fa-calendar-check"></i>
-                    Ver Turnos
-                </a>
-            </li>
-            <li>
-                <!-- Botón para atender a un paciente -->
-                <a href="{{ url_for('main.atender_paciente') }}">
-                    <i class="fas fa-user-md"></i>
-                    Atender Paciente
-                </a>
-            </li>
-            <li>
-                <!-- Botón para cerrar sesión -->
-                <a href="{{ url_for('main.logout') }}">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Cerrar sesión
-                </a>
-            </li>
-        </ul>
+        <div class="menu-vertical">
+            <a href="{{ url_for('main.gestionar_turnos') }}" class="menu-item">
+                <i class="fas fa-calendar-check"></i>
+                <span>Ver Turnos</span>
+            </a>
+            <a href="{{ url_for('main.atender_paciente') }}" class="menu-item">
+                <i class="fas fa-user-md"></i>
+                <span>Atender Paciente</span>
+            </a>
+            <a href="{{ url_for('main.chat_profesional') }}" class="menu-item">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+            </a>
+            <a href="{{ url_for('main.logout') }}" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar sesión</span>
+            </a>
+        </div>
     </div>
 </body>
 </html>

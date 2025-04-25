@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='images/NextFlow_Logo_blanco.png') }}">
+    <title>Ficha Profesional - NEXTFLOW</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ficha_profesional.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="ficha-container">
+            <div class="header">
+                <h1>Ficha Profesional</h1>
+                <a href="{{ url_for('main.gestionar_profesionales') }}" class="btn-volver">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <div class="info-container">
+                <div class="info-section">
+                    <h2>Información Personal</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Nombre Completo:</label>
+                            <p>{{ profesional.usuario.nombre_completo }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Nombre de Usuario:</label>
+                            <p>{{ profesional.usuario.nombre_usuario }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Correo Electrónico:</label>
+                            <p>{{ profesional.usuario.correo }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Teléfono:</label>
+                            <p>{{ profesional.usuario.telefono }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h2>Información Profesional</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Especialidad:</label>
+                            <p>{{ profesional.especialidad }}</p>
+                        </div>
+                        <div class="info-item full-width">
+                            <label>Perfil Profesional:</label>
+                            <p>{{ profesional.perfil }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>            
+        </div>
+    </div>
+</body>
+</html> 
