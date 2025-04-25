@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionar Turnos - NEXTFLOW</title>
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='images/NextFlow_Logo_blanco.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/gestionar_turnos.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="turnos-container">
+        <h1>Gestionar Turnos</h1>
+
+        <!-- Botones de navegación -->
+        <ul>
+            <li>
+                <!-- Botón para agendar un turno -->
+                <a href="{{ url_for('main.agendar_turno') }}">
+                    <i class="fas fa-calendar-plus"></i>
+                    Agendar Turno
+                </a>
+            </li>
+            <li>
+                <!-- Botón para volver al panel de administración -->
+                <a href="{{ url_for('main.dashboard') }}">
+                    <i class="fas fa-arrow-left"></i>
+                    Volver al Panel de Administración
+                </a>
+            </li>
+        </ul>
+
+        <!-- Título de la lista de turnos -->
+        <h2>Lista de Turnos</h2>
+
+        <!-- Tabla de turnos -->
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Turno</th>
+                    <th>Usuario (Profesional)</th>
+                    <th>Fecha</th>
+                    <th>Hora Entrada</th>
+                    <th>Hora Salida</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Iteración sobre los turnos -->
+                {% for turno in turnos %}
+                <tr>
+                    <td>{{ turno.id_turno }}</td>
+                    <td>{{ turno.usuario.nombre }}</td>
+                    <td>{{ turno.fecha }}</td>
+                    <td>{{ turno.hora_entrada }}</td>
+                    <td>{{ turno.hora_salida }}</td>
+                    <td>
+                    <!-- Botón para eliminar un turno -->
+                        <a href="{{ url_for('main.eliminar_turno', id_turno=turno.id_turno) }}" 
+                           onclick="return confirm('¿Estás seguro de que deseas eliminar este turno?')">
+                            <i class="fas fa-trash-alt"></i>
+                            Eliminar
+                        </a>
+                    </td>
+                </tr>
+                <!-- Fin de la iteración sobre los turnos -->
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

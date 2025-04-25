@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='images/NextFlow_Logo_blanco.png') }}">
+    <title>NEXTFLOW - Sistema de Gestión Médica</title>
+    <link rel="stylesheet" href="static/css/Main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+    
+    <!-- Codigo para el navbar de la pagina -->
+        <nav class="navbar">
+            <div class="navigation-container">
+                <div class="navigation-link-wrapper">
+                    <a href="javascript:void(0)" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="logo-link-large">
+                        <img src="static/images/nextflow_logo-preview.png" alt="NEXTFLOW Logo">
+                        <h1>NEXTFLOW</h1>
+                    </a>
+                    <!-- Codigo para el dropdown de la pagina -->
+                    <div class="navigation-menu">                      
+                        <!-- Codigo para los links del navbar de la pagina -->
+                    </div>
+                </div>
+                <div class="navigation-wrapper">
+                    <div class="hide-mobile">
+                        <a href="{{ url_for('main.login') }}" class="button-cta">Iniciar Sesion</a>
+                    </div>
+                    <div class="menu-button">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+
+        <!-- Codigo para Menú móvil -->
+        <div class="mobile-menu">
+            <div class="mobile-menu-header">
+                <a href="javascript:void(0)" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="logo-link-large">
+                    <img src="static/images/nextflow_logo.png" alt="NEXTFLOW Logo">
+                    <h1>NEXTFLOW</h1>
+                </a>
+                <div class="close-menu">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            <div class="mobile-nav-links">
+                <a href="{{ url_for('main.login') }}" class="mobile-nav-link button-cta" onclick="closeMobileMenu()">Iniciar Sesion</a>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Sección en donde esta el titulo, ademas de el carrusel de imagenes-->
+    <main>
+        <section id="hero">
+            <div class="hero-content"> <!-- Titulo ademas de sus bonotenes respectivos, como el href para ir a las futuras paginas -->
+                <h1>Excelencia en Servicios Médicos</h1>
+                <p>Atención especializada con los mejores profesionales de la salud</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('main.servicios') }}" class="btn-primary">Nuestros Servicios</a>
+                    <a href="#contacto-especialista" class="btn-secondary" onclick="scrollToSection('contacto-especialista')">Contactar Especialista</a>
+                </div>
+            </div>
+    <!-- Aqui van los href de las imagenes para el carrusel del inicio -->
+            <div class="hero-image">
+                <div class="carousel-container" id="carousel">
+                    <div class="carousel-slide active">
+                        <img src="https://www.cobil.cl/wp-content/uploads/2023/02/WhatsApp-Image-2023-02-05-at-11.40.42-2-1024x576.jpeg" alt="Centro Médico">
+                    </div>
+                    <div class="carousel-slide">
+                        <img src="https://www.unitecoprofesional.es/blog/wp-content/uploads/2021/09/sistemas-de-informacion-sanitaria-1024x576.jpg" alt="Consultorio Médico">
+                    </div>
+                    <div class="carousel-slide">
+                        <img src="https://www.digitalware.com.co/wp-content/uploads/2024/11/consejos-para-optimizar-tu-sistema-de-informacion-en-salud-3-1024x630.jpg" alt="Sala de Espera">
+                    </div>
+                    <div class="carousel-slide">
+                        <img src="https://images.theconversation.com/files/527214/original/file-20230519-15-32xlpt.jpg?ixlib=rb-4.1.0&rect=66%2C396%2C7282%2C3635&q=45&auto=format&w=1356&h=668&fit=crop" alt="Medicos">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    <!-- Sección de Gestión de Horarios -->
+        <section id="gestion-horarios" class="section-padding bg-light">
+            <div class="section-header">
+                <h2>Gestión Inteligente de Horarios</h2>
+                <p>Optimiza la administración de tus box médicos y mejora la experiencia de tus pacientes</p>
+            </div>
+            <div class="gestion-container">
+                <div class="gestion-content">
+                    <div class="gestion-card">
+                        <div class="gestion-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+
+    <!-- Card de profesionales de la seccion de gestion de horarios -->
+                        <h3>Para Profesionales</h3>                       
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> Gestión automática de horarios</li>
+                            <li><i class="fas fa-check"></i> Notificaciones de citas</li>
+                            <li><i class="fas fa-check"></i> Historial de pacientes</li>
+                            <li><i class="fas fa-check"></i> Estadísticas de consultas</li>
+                        </ul>
+                    </div>
+                    <div class="gestion-card">
+                        <div class="gestion-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+
+    <!-- Card de administracion de la seccion de gestion de horarios -->
+                        <h3>Para Administración</h3>                       
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> Control centralizado de box</li>
+                            <li><i class="fas fa-check"></i> Reportes de ocupación</li>
+                            <li><i class="fas fa-check"></i> Optimización de recursos</li>
+                            <li><i class="fas fa-check"></i> Facturación integrada</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+    <!-- Sección de Soluciones Integrales -->
+        <section id="soluciones" class="section-padding bg-light">
+            <div class="section-header">
+                <h2>Soluciones Integrales</h2>
+                <p>Optimizamos la gestión de tu centro médico con herramientas especializadas</p>
+            </div>
+    <!-- Card de los servicios de la seccion de soluciones integrales -->
+            <div class="soluciones-container">
+                <div class="soluciones-grid">
+                    <div class="solucion-card">
+                        <div class="solucion-icon">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+
+    <!-- Card de gestion de pacientes de la seccion de soluciones integrales -->
+                        <h3>Gestión de Pacientes</h3>
+                        <p>Organiza de manera segura y eficiente la información de tus pacientes.</p>
+                    </div>
+                    <div class="solucion-card">
+                        <div class="solucion-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+
+    <!-- Card de control de acceso de la seccion de soluciones integrales -->
+                        <h3>Control de Acceso</h3>
+                        <p>Optimiza el tiempo y recursos con una gestión inteligente de citas.</p>
+                    </div>
+                    <div class="solucion-card">
+                        <div class="solucion-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+
+    <!-- Card de agendamiento de boxes de la seccion de soluciones integrales -->
+                        <h3>Agendamiento de Boxes</h3>
+                        <p>Mejora la gestion del arriendo de los boxes medicos.</p>
+                    </div>
+                </div>
+
+
+    <!-- Sección de Software para coordinar diversos establecimientos de salud -->
+                <div class="section-header">
+                    <h2>Software para coordinar diversos establecimientos de salud</h2>
+                    <p>Soluciones adaptadas para cada tipo de centro</p>
+                </div>
+
+    <!-- Card de la seccion de software para coordinar diversos establecimientos de salud -->
+                <div class="centros-grid">
+            <!-- card de medicina de la seccion de software para coordinar diversos establecimientos de salud -->
+                    <div class="centro-card">
+                        <img src="https://blog.auna.pe/hs-fs/hubfs/Imported_Blog_Media/Foto-1-portada-1-2.jpg?width=1280&height=720&name=Foto-1-portada-1-2.jpg" alt="Centro Médico">
+                        <h3>Medicas</h3>
+                        <p>Gestión integral para todas las especialidades.</p>
+                    </div>
+
+            <!-- card de psicologia de la seccion de software para coordinar diversos establecimientos de salud -->
+                    <div class="centro-card">
+                        <img src="https://pinaresclinica.com.co/wp-content/uploads/2021/01/Consulta-psicologica-1024x683.jpg" alt="Consultas psicológicas">
+                        <h3>Psicológicas</h3>
+                        <p>Herramientas especializadas para seguimiento.</p>
+                    </div>
+
+            <!-- card de kinesiologia de la seccion de software para coordinar diversos establecimientos de salud -->
+                    <div class="centro-card">
+                        <img src="https://www.clinicauandes.cl/images/default-source/365/kinesiologia-a-domicilio-812x465.webp?sfvrsn=d8510c72_2" alt="Centros kinesiológicas">
+                        <h3>kinesiológicas</h3>
+                        <p>Gestión de exámenes y seguimiento visual.</p>
+                    </div>                 
+
+            <!-- card de odontologia de la seccion de software para coordinar diversos establecimientos de salud -->
+                    <div class="centro-card">
+                        <img src="https://odontologiaperu.org/wp-content/uploads/2018/08/Porqu%C3%A9-acudir-la-consulta-dental.jpg" alt="Centros odontológicas">
+                        <h3>Odontológicas</h3>
+                        <p>Gestión de exámenes y seguimiento visual.</p>
+                    </div>
+
+            <!-- card de oftalmologia de la seccion de software para coordinar diversos establecimientos de salud -->
+                    <div class="centro-card">
+                        <img src="https://www.ioares.cl/wp-content/uploads/slider/cache/0ce6bb8f4d5289111303560ef74d5510/shutterstock_138796748.jpg" alt="Centros oftalmológicos">
+                        <h3>Oftalmológicas</h3>
+                        <p>Gestión de exámenes y seguimiento visual.</p>
+                    </div>   
+
+            <!-- card de otorrinolaringologia de la seccion de software para coordinar diversos establecimientos de salud -->
+                    <div class="centro-card">
+                        <img src="https://drdavidbriones.com/wp-content/uploads/2019/11/Drupal-web_GettyImages-547016259.jpg" alt="otorrinolaringología">
+                        <h3>Otorrinolaringología</h3>
+                        <p>Gestión de exámenes y seguimiento visual.</p>
+                    </div>             
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección de Contacto con un Especialista -->
+        <section id="contacto-especialista" class="section-padding">
+            <div class="contacto-container">
+                <div class="contacto-info">
+                    <h2>Contacta con un Especialista</h2>
+                    <p>Completa el formulario y nos pondremos en contacto contigo</p>
+                    <div class="info-items">
+                        <div class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <p>+56 9 76856278</p>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-envelope"></i>
+                            <p>contacto@nextflow.com</p>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-clock"></i>
+                            <p>Lunes a Viernes: 8:00 - 20:00</p>
+                        </div>
+                    </div>
+                </div>
+
+        <!-- Formulario de contacto con un especialista -->
+                <div class="contacto-form">
+                    <form>
+                        <div class="form-group">
+                            <label for="nombre">Nombre Completo</label>
+                            <input type="text" id="nombre" required placeholder="Ingrese su nombre">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Correo Electrónico</label>
+                            <input type="email" id="email" required placeholder="Ingrese su correo">
+                        </div>
+                        <div class="form-group">
+                            <label for="telefono">Teléfono</label>
+                            <input type="tel" id="telefono" required placeholder="Ingrese su teléfono">
+                        </div>
+                        <div class="form-group">
+                            <label for="especialidad">Especialidad de Interés</label>
+                            <select id="especialidad" required>
+                                <option value="">Seleccione una especialidad</option>
+                                <option value="cardiologia">Cardiología</option>
+                                <option value="neurologia">Neurología</option>
+                                <option value="ortopedia">Ortopedia</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="mensaje">Mensaje</label>
+                            <textarea id="mensaje" required placeholder="Describa brevemente su consulta"></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary">Enviar Mensaje</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+
+    <!-- Sección de Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Contacto</h3>
+                <div class="contact-item">
+                    <i class="fas fa-user"></i>
+                    <p>eduardo.melgarejo@virginiogomez.cl</p>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-user"></i>
+                    <p>nicolas.sanmartin1@virginiogomez.cl</p>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-user"></i>
+                    <p>mathias.munoz@virginiogomez.cl</p>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <p>+56 9 76856278</p>
+                </div>
+            </div>
+            <!-- Footer de la seccion de contacto -->
+            <div class="footer-section">
+                <h3>Horario de Atención</h3>
+                <div class="contact-item">
+                    <i class="fas fa-clock"></i>
+                    <p>Lunes a Viernes: 8:00 - 20:00</p>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-clock"></i>
+                    <p>Sábado: 9:00 - 14:00</p>
+                </div>
+            </div>
+            <!-- Footer de la seccion de horario de atencion -->
+            <div class="footer-section">
+                <h3>Síguenos</h3>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 NEXTFLOW. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Script para el carrusel de imagenes -->
+    <script>
+        // Script para el desplazamiento suave
+        function scrollToSection(sectionId) {
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                const targetPosition = targetSection.offsetTop;
+                const startPosition = window.pageYOffset;
+                const distance = targetPosition - startPosition;
+                const duration = 1000;
+                let start = null;
+                
+                function animation(currentTime) {
+                    if (start === null) start = currentTime;
+                    const timeElapsed = currentTime - start;
+                    const progress = Math.min(timeElapsed / duration, 1);
+                    
+                    const easeInOutCubic = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                    
+                    window.scrollTo(0, startPosition + distance * easeInOutCubic(progress));
+                    
+                    if (timeElapsed < duration) {
+                        requestAnimationFrame(animation);
+                    }
+                }
+                
+                requestAnimationFrame(animation);
+            }
+        }
+
+        // Función para cerrar el menú móvil
+        function closeMobileMenu() {
+            const mobileMenu = document.querySelector('.mobile-menu');
+            mobileMenu.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Seleccionar todos los enlaces del navbar
+            const navLinks = document.querySelectorAll('.navigation-link, .mobile-nav-link');
+            
+            // Agregar evento de clic a cada enlace
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Obtener el ID de la sección objetivo
+                    const targetId = this.getAttribute('href');
+                    
+                    // Solo prevenir el comportamiento por defecto si es un enlace de navegación interna
+                    if (targetId && targetId.startsWith('#')) {
+                        e.preventDefault();
+                        scrollToSection(targetId.substring(1));
+                    }
+                });
+            });
+        });
+
+        // Script para el carrusel de imagenes
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.carousel-slide');
+            let currentSlide = 0;
+            const slideInterval = 3000; // 3 segundos
+            
+            // Funcion para mostrar la imagen actual
+            function showSlide(n) {
+                slides.forEach(slide => {
+                    slide.classList.remove('active');
+                });
+                
+                // Funcion para mostrar la imagen actual
+                currentSlide = (n + slides.length) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }
+
+            // Funcion para pasar a la siguiente imagen
+            function nextSlide() {
+                showSlide(currentSlide + 1);
+            }
+
+            // Iniciar el carrusel de imagenes
+            setInterval(nextSlide, slideInterval);
+        });
+
+        // Script para el menú móvil que se abre al hacer click en el boton de menu
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuButton = document.querySelector('.menu-button');
+            const closeMenu = document.querySelector('.close-menu');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const mobileDropdown = document.querySelector('.mobile-dropdown');
+            const mobileDropdownToggle = document.querySelector('.mobile-nav-links .dropdown-toggle');
+
+            // Funcion para abrir el menú móvil 
+            menuButton.addEventListener('click', () => {
+                mobileMenu.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+
+            // Funcion para cerrar el menú móvil
+            closeMenu.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+
+            // Funcion para abrir el dropdown del menú móvil
+            mobileDropdownToggle.addEventListener('click', () => {
+                mobileDropdown.style.display = mobileDropdown.style.display === 'flex' ? 'none' : 'flex';
+                const arrow = mobileDropdownToggle.querySelector('.navigation-arrow i');
+                arrow.style.transform = mobileDropdown.style.display === 'flex' ? 'rotate(180deg)' : 'rotate(0)';
+            });
+
+            // Cerrar menú al hacer clic en un enlace del menú móvil
+            document.querySelectorAll('.mobile-nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (!link.classList.contains('dropdown-toggle')) {
+                        mobileMenu.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            });
+        });    
+
+        // Script para el logo del header que cambia de color al pasar el mouse por encima
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoLinks = document.querySelectorAll('.logo-link-large');
+            
+            logoLinks.forEach(link => {
+                const img = link.querySelector('img');
+                
+                // Funcion para cambiar el logo al pasar el mouse por encima
+                link.addEventListener('mouseenter', function() {
+                    img.setAttribute('src', 'static/images/NextFlow_Logo_blanco.png');
+                });
+
+                // Funcion para cambiar el logo al quitar el mouse por encima
+                link.addEventListener('mouseleave', function() {
+                    img.setAttribute('src', 'static/images/NextFlow_Logo-preview.png');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

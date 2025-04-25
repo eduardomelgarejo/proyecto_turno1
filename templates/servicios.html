@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios - NEXTFLOW</title>
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='images/NextFlow_Logo_blanco.png') }}">    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/servicios.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>    
+    <main>
+        <div class="servicios-container">
+            <div class="servicios-header">
+                <!-- Botón para volver a la página principal -->
+                <a href="{{ url_for('main.main') }}" class="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                    Volver
+                </a>
+                <!-- Título de la página -->
+                <h1>Nuestros Servicios</h1>
+                <!-- Descripción de la página -->
+                <div class="header-description">
+                    <h2 class="description-text">Descubre cómo podemos ayudarte a optimizar la gestión de tu centro médico</h2>
+                    <div class="description-line"></div>
+                </div>
+            </div>
+
+            <div class="servicios-grid">
+                <!-- Servicio de Gestión de Pacientes -->
+                <div class="servicio-card">
+                    <div class="servicio-icon">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <h3>Gestión de Pacientes</h3>
+                    <p>Administra eficientemente la información de tus pacientes con nuestro sistema integral.</p>
+                    <ul class="servicio-features">
+                        <!-- Historial médico completo -->
+                        <li><i class="fas fa-check"></i> Historial médico completo</li>
+                        <!-- Fichas clínicas digitales -->
+                        <li><i class="fas fa-check"></i> Fichas clínicas digitales</li>
+                        <!-- Seguimiento de tratamientos -->
+                        <li><i class="fas fa-check"></i> Seguimiento de tratamientos</li>
+                        <!-- Notificaciones automáticas -->
+                        <li><i class="fas fa-check"></i> Notificaciones automáticas</li>
+                    </ul>
+                </div>
+
+                <!-- Servicio de Agendamiento -->
+                <div class="servicio-card">
+                    <div class="servicio-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h3>Agendamiento Inteligente</h3>
+                    <p>Optimiza el tiempo y recursos con nuestro sistema de gestión de citas.</p>
+                    <ul class="servicio-features">
+                        <!-- Reserva online 24/7 -->
+                        <li><i class="fas fa-check"></i> Reserva online 24/7</li>
+                        <!-- Recordatorios automáticos -->
+                        <li><i class="fas fa-check"></i> Recordatorios automáticos</li>
+                        <!-- Gestión de box médicos -->
+                        <li><i class="fas fa-check"></i> Gestión de box médicos</li>
+                        <!-- Estadísticas de ocupación -->
+                        <li><i class="fas fa-check"></i> Estadísticas de ocupación</li>
+                    </ul>
+                </div>
+
+                <!-- Servicio de Facturación -->
+                <div class="servicio-card">
+                    <div class="servicio-icon">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <h3>Facturación Digital</h3>
+                    <p>Simplifica tus procesos administrativos con nuestro módulo de facturación.</p>
+                    <ul class="servicio-features">
+                        <!-- Facturación electrónica -->
+                        <li><i class="fas fa-check"></i> Facturación electrónica</li>
+                        <!-- Control de pagos -->
+                        <li><i class="fas fa-check"></i> Control de pagos</li>
+                        <!-- Reportes financieros -->
+                        <li><i class="fas fa-check"></i> Reportes financieros</li>
+                        <!-- Integración con contabilidad -->
+                        <li><i class="fas fa-check"></i> Integración con contabilidad</li>
+                    </ul>
+                </div>
+
+                <!-- Servicio de Reportes -->
+                <div class="servicio-card">
+                    <div class="servicio-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Reportes y Análisis</h3>
+                    <p>Obtén insights valiosos para la toma de decisiones de tu centro médico.</p>
+                    <ul class="servicio-features">
+                        <!-- Dashboard personalizado -->
+                        <li><i class="fas fa-check"></i> Dashboard personalizado</li>
+                        <!-- Métricas de rendimiento -->
+                        <li><i class="fas fa-check"></i> Métricas de rendimiento</li>
+                        <!-- Reportes exportables -->
+                        <li><i class="fas fa-check"></i> Reportes exportables</li>
+                        <!-- Análisis predictivo -->
+                        <li><i class="fas fa-check"></i> Análisis predictivo</li>
+                    </ul>
+                </div>
+
+                <!-- Servicio de Seguridad -->
+                <div class="servicio-card">
+                    <div class="servicio-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Seguridad y Privacidad</h3>
+                    <p>Protege la información sensible de tus pacientes con nuestros protocolos de seguridad.</p>
+                    <ul class="servicio-features">
+                        <!-- Encriptación de datos -->
+                        <li><i class="fas fa-check"></i> Encriptación de datos</li>
+                        <!-- Control de acceso -->
+                        <li><i class="fas fa-check"></i> Control de acceso</li>
+                        <!-- Backup automático -->
+                        <li><i class="fas fa-check"></i> Backup automático</li>
+                        <!-- Cumplimiento normativo -->
+                        <li><i class="fas fa-check"></i> Cumplimiento normativo</li>
+                    </ul>
+                </div>
+
+                <!-- Servicio de Soporte -->
+                <div class="servicio-card">
+                    <div class="servicio-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>Soporte Técnico</h3>
+                    <p>Cuenta con asistencia profesional cuando la necesites.</p>
+                    <ul class="servicio-features">
+                        <!-- Soporte 24/7 -->
+                        <li><i class="fas fa-check"></i> Soporte 24/7</li>
+                        <!-- Capacitación personalizada -->
+                        <li><i class="fas fa-check"></i> Capacitación personalizada</li>
+                        <!-- Actualizaciones constantes -->
+                        <li><i class="fas fa-check"></i> Actualizaciones constantes</li>
+                        <!-- Asesoría técnica -->
+                        <li><i class="fas fa-check"></i> Asesoría técnica</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Sección de Precios -->
+    <section class="precios-section">
+        <div class="precios-container">
+            <h2>Planes y Precios</h2>
+            <p class="precios-subtitle">Elige el plan que mejor se adapte al tamaño de tu centro médico</p>
+            
+            <div class="precios-slider">
+                <div class="precio-card">
+                    <!-- Plan Pequeño -->
+                    <div class="precio-header">
+                        <h3>Pequeño</h3>
+                        <div class="precio">
+                            <span class="moneda">$</span>
+                            <span class="valor">149.990</span>
+                            <span class="periodo">/mes</span>
+                        </div>
+                        <p class="precio-desc">Hasta 3 boxes</p>
+                    </div>
+                    <ul class="precio-features">
+                        <!-- Hasta 5 usuarios -->
+                        <li><i class="fas fa-check"></i> Hasta 5 usuarios</li>
+                        <!-- Gestión de pacientes -->
+                        <li><i class="fas fa-check"></i> Gestión de pacientes</li>
+                        <!-- Agendamiento básico -->
+                        <li><i class="fas fa-check"></i> Agendamiento básico</li>
+                        <!-- Reportes mensuales -->
+                        <li><i class="fas fa-check"></i> Reportes mensuales</li>
+                        <!-- Soporte por email -->
+                        <li><i class="fas fa-check"></i> Soporte por email</li>
+                    </ul>
+                </div>
+
+                <!-- Plan Mediano -->
+                <div class="precio-card destacado">
+                    <div class="precio-header">
+                        <h3>Mediano</h3>
+                        <div class="precio">
+                            <span class="moneda">$</span>
+                            <span class="valor">299.990</span>
+                            <span class="periodo">/mes</span>
+                        </div>
+                        <p class="precio-desc">Hasta 6 boxes</p>
+                    </div>  
+                    <ul class="precio-features">
+                        <!-- Hasta 10 usuarios -->
+                        <li><i class="fas fa-check"></i> Hasta 10 usuarios</li>
+                        <!-- Gestión avanzada -->
+                        <li><i class="fas fa-check"></i> Gestión avanzada</li>
+                        <!-- Agendamiento inteligente -->
+                        <li><i class="fas fa-check"></i> Agendamiento inteligente</li>
+                        <!-- Facturación digital -->
+                        <li><i class="fas fa-check"></i> Facturación digital</li>
+                        <!-- Reportes en tiempo real -->
+                        <li><i class="fas fa-check"></i> Reportes en tiempo real</li>
+                        <!-- Soporte prioritario -->
+                        <li><i class="fas fa-check"></i> Soporte prioritario</li>
+                    </ul>
+                </div>
+
+                <!-- Plan Grande -->
+                <div class="precio-card">
+                    <div class="precio-header">
+                        <h3>Grande</h3>
+                        <div class="precio">
+                            <span class="moneda">$</span>
+                            <span class="valor">499.990</span>
+                            <span class="periodo">/mes</span>
+                        </div>
+                        <p class="precio-desc">Hasta 12 boxes</p>
+                    </div>
+                    <ul class="precio-features">
+                        <!-- Usuarios ilimitados -->
+                        <li><i class="fas fa-check"></i> Usuarios ilimitados</li>
+                        <!-- Múltiples sucursales -->
+                        <li><i class="fas fa-check"></i> Múltiples sucursales</li>
+                        <!-- Personalización total -->
+                        <li><i class="fas fa-check"></i> Personalización total</li>
+                        <!-- API de integración -->
+                        <li><i class="fas fa-check"></i> API de integración</li>
+                        <!-- Análisis predictivo -->
+                        <li><i class="fas fa-check"></i> Análisis predictivo</li>
+                        <!-- Gerente de cuenta dedicado -->
+                        <li><i class="fas fa-check"></i> Gerente de cuenta dedicado</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Contacto</h3>
+                <div class="contact-item">
+                    <i class="fas fa-user"></i>
+                    <p>eduardo.melgarejo@virginiogomez.cl</p>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-user"></i>
+                    <p>nicolas.sanmartin1@virginiogomez.cl</p>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-user"></i>
+                    <p>mathias.munoz@virginiogomez.cl</p>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <p>+56 9 76856278</p>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Horario de Atención</h3>
+                <div class="contact-item">
+                    <i class="fas fa-clock"></i>
+                    <p>Lunes a Viernes: 8:00 - 20:00</p>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-clock"></i>
+                    <p>Sábado: 9:00 - 14:00</p>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Síguenos</h3>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 NEXTFLOW. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+
+        // Script para el menú móvil
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuButton = document.querySelector('.menu-button');
+            const closeMenu = document.querySelector('.close-menu');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            // Abrir menú al hacer clic en el botón
+            menuButton.addEventListener('click', () => {
+                mobileMenu.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            // Cerrar menú al hacer clic en el botón de cierre
+            closeMenu.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+
+            // Cerrar menú al hacer clic en un enlace
+            document.querySelectorAll('.mobile-nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                });
+            });
+        });
+
+        // Script para el logo
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoLinks = document.querySelectorAll('.logo-link-large');
+            // Cambiar el logo al hacer hover
+            logoLinks.forEach(link => {
+                const img = link.querySelector('img');
+                // Cambiar el logo al hacer hover
+                link.addEventListener('mouseenter', function() {
+                    img.setAttribute('src', 'static/images/NextFlow_Logo_blanco.png');
+                });
+                // Cambiar el logo al hacer hover
+                link.addEventListener('mouseleave', function() {
+                    img.setAttribute('src', 'static/images/NextFlow_Logo-preview.png');
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

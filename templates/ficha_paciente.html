@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha del Paciente</title>
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='images/NextFlow_Logo_blanco.png') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ficha_paciente.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="ficha-container">
+        <h1>Ficha del Paciente</h1>
+        
+        <!-- Información Personal -->
+        <div class="section">
+            <h2>Información Personal</h2>
+            <!-- RUT -->
+            <div class="info-field">
+                <i class="fas fa-id-card"></i>
+                <span>RUT:</span>
+                <strong>{{ paciente.rut }}-{{ paciente.dv }}</strong>
+            </div>
+            <!-- Nombre completo -->
+            <div class="info-field">
+                <i class="fas fa-user"></i>
+                <span>Nombre completo:</span>
+                <strong>{{ paciente.nombre_completo }}</strong>
+            </div>
+            <!-- Nombre de usuario -->
+            <div class="info-field">
+                <i class="fas fa-user-circle"></i>
+                <span>Nombre de usuario:</span>
+                <strong>{{ paciente.nombre_usuario }}</strong>
+            </div>
+            <!-- Fecha de nacimiento -->
+            <div class="info-field">
+                <i class="fas fa-birthday-cake"></i>
+                <span>Fecha de nacimiento:</span>
+                <strong>{{ paciente.fecha_nacimiento.strftime('%d/%m/%Y') if paciente.fecha_nacimiento else 'No registrada' }}</strong>
+            </div>
+            <!-- Correo electrónico -->
+            <div class="info-field">
+                <i class="fas fa-envelope"></i>
+                <span>Correo electrónico:</span>
+                <strong>{{ paciente.correo }}</strong>
+            </div>
+            <!-- Teléfono -->
+            <div class="info-field">
+                <i class="fas fa-phone"></i>
+                <span>Teléfono:</span>
+                <strong>{{ paciente.telefono }}</strong>
+            </div>
+            <!-- Dirección -->
+            <div class="info-field">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Dirección:</span>
+                <strong>{{ paciente.direccion }}</strong>
+            </div>
+        </div>
+
+        <!-- Información Médica -->
+        <div class="section">
+            <h2>Información Médica</h2>
+            <div class="info-field">
+                <i class="fas fa-notes-medical"></i>
+                <!-- Antecedentes Médicos -->
+                <span>Antecedentes Médicos:</span>
+                <strong>{{ ficha.antecedentes_medicos if ficha else 'No registrado' }}</strong>
+            </div>
+            <div class="info-field">
+                <i class="fas fa-allergies"></i>
+                <!-- Alergias -->
+                <span>Alergias:</span>
+                <strong>{{ ficha.alergias if ficha else 'No registrado' }}</strong>
+            </div>
+            <div class="info-field">
+                <i class="fas fa-pills"></i>
+                <!-- Medicamentos Actuales -->
+                <span>Medicamentos Actuales:</span>
+                <strong>{{ ficha.medicamentos_actuales if ficha else 'No registrado' }}</strong>
+            </div>
+            <div class="info-field">
+                <i class="fas fa-comment-medical"></i>
+                <!-- Observaciones -->
+                <span>Observaciones:</span>
+                <strong>{{ ficha.observaciones if ficha else 'No registrado' }}</strong>
+            </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="btn-container">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Volver al Panel
+            </a>
+        </div>
+    </div>
+</body>
+</html>

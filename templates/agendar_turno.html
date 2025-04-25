@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendar Turno</title>
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='images/NextFlow_Logo_blanco.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/agendar_turno.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <h1>Formulario para Agendar un Turno</h1>
+    <form action="{{ url_for('main.agendar_turno') }}" method="POST" id="turnoForm">
+        <div class="back-button">
+            <a href="{{ url_for('main.dashboard') }}">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+        </div>
+    <!-- Formulario para agendar un turno -->
+        <div class="form-group">
+            <label for="id_usuario">Profesional:</label>
+            <select name="id_usuario" id="id_usuario" required>
+                <!-- Opciones de profesionales -->
+                <option value="">Seleccione un profesional</option>
+                {% for profesional, usuario in profesionales %}                    
+                <option value="{{ profesional.id_profesional }}">{{ usuario.nombre_completo }} - {{ profesional.especialidad }}</option>
+                {% endfor %}
+            </select>
+            <div class="error-message" id="usuarioError">Por favor seleccione un profesional</div>
+        </div>
+    <!-- Fecha -->
+        <div class="form-group">
+            <label for="fecha">Fecha:</label>
+            <input type="date" name="fecha" id="fecha" required min="{{ hoy }}">
+            <div class="error-message" id="fechaError">Por favor seleccione una fecha válida</div>
+        </div>
+    <!-- Hora de Entrada -->
+        <div class="form-group">
+            <label for="hora_entrada">Hora de Entrada:</label>
+            <input type="time" name="hora_entrada" id="hora_entrada" required>
+            <div class="error-message" id="horaEntradaError">La hora de entrada debe estar entre 8:00 y 20:00</div>
+        </div>
+    
+        <div class="form-group">
+            <label for="hora_salida">Hora de Salida:</label>
+            <input type="time" name="hora_salida" id="hora_salida" required>
+            <div class="error-message" id="horaSalidaError">La hora de salida debe ser posterior a la hora de entrada</div>
+        </div>
+    <!-- Botón de Confirmación -->
+        <button type="submit">Confirmar Turno</button>
+    </form>
+
+    <!-- Script para validar las horas -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('turnoForm');
+            const horaEntrada = document.getElementById('hora_entrada');
+            const horaSalida = document.getElementById('hora_salida');
+            const fecha = document.getElementById('fecha');
+
+            // Establecer la fecha mínima como hoy
+            const hoy = new Date().toISOString().split('T')[0];
+            fecha.min = hoy;
+
+            // Validación de horas
+            function validarHoras() {
+                const horaEntradaValue = horaEntrada.value;
+                const horaSalidaValue = horaSalida.value;
+                const fechaValue = fecha.value;
+                
+                // Validar hora de entrada (8:00 - 20:00)
+                const [horaE, minutoE] = horaEntradaValue.split(':').map(Number);
+                if (horaE < 8 || horaE > 20) {
+                    mostrarError(horaEntrada, 'horaEntradaError', 'La hora de entrada debe estar entre 8:00 y 20:00');
+                    return false;
+                } else {
+                    ocultarError(horaEntrada, 'horaEntradaError');
+                }
+
+                // Validar hora de salida (debe ser posterior a la entrada)
+                const [horaS, minutoS] = horaSalidaValue.split(':').map(Number);
+                if (horaS < horaE || (horaS === horaE && minutoS <= minutoE)) {
+                    mostrarError(horaSalida, 'horaSalidaError', 'La hora de salida debe ser posterior a la hora de entrada');
+                    return false;
+                } else {
+                    ocultarError(horaSalida, 'horaSalidaError');
+                }
+                
+                return true;
+            }
+
+            // Función para mostrar el mensaje de error
+            function mostrarError(input, errorId, mensaje) {
+                const errorElement = document.getElementById(errorId);
+                errorElement.textContent = mensaje;
+                errorElement.style.display = 'block';
+                input.classList.add('error');
+            }
+
+            // Función para ocultar el mensaje de error
+            function ocultarError(input, errorId) {
+                const errorElement = document.getElementById(errorId);
+                errorElement.style.display = 'none';
+                input.classList.remove('error');
+            }
+
+            // Event listeners
+            horaEntrada.addEventListener('change', validarHoras);
+            horaSalida.addEventListener('change', validarHoras);
+            fecha.addEventListener('change', validarHoras);
+
+            // Evento submit del formulario
+            form.addEventListener('submit', function(e) {
+                if (!validarHoras()) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Atenciones</title>
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='images/NextFlow_Logo_blanco.png') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/historial_atenciones.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="historial-container">
+        <h1>Historial de Atenciones</h1>
+        <!-- Botón para volver al panel de administración -->
+        <div class="atenciones-list">
+            {% for atencion in historial %}
+            <div class="atencion-item">
+                <div class="atencion-header">
+                    <!-- Fecha de la atención -->
+                    <span class="atencion-fecha">{{ atencion.fecha }}</span>
+                    <!-- Profesional que atendió -->
+                    <span class="atencion-profesional">{{ atencion.profesional.nombre_completo }}</span>
+                </div>
+                <div class="atencion-content">
+                    <div class="atencion-field">
+                        <!-- Icono de diagnóstico -->
+                        <i class="fas fa-stethoscope"></i>
+                        <div class="atencion-field-content">
+                            <!-- Título del diagnóstico -->
+                            <div class="atencion-field-title">Diagnóstico</div>
+                            <!-- Texto del diagnóstico -->
+                            <div class="atencion-field-text">{{ atencion.diagnostico }}</div>
+                        </div>
+                    </div>
+                    <div class="atencion-field">
+                        <i class="fas fa-prescription-bottle-alt"></i>
+                        <div class="atencion-field-content">
+                            <!-- Título del tratamiento -->
+                            <div class="atencion-field-title">Tratamiento</div>
+                            <!-- Texto del tratamiento -->
+                            <div class="atencion-field-text">{{ atencion.tratamiento }}</div>
+                        </div>
+                    </div>
+                    <div class="atencion-field">
+                        <i class="fas fa-comment-medical"></i>
+                        <div class="atencion-field-content">
+                            <!-- Título de las observaciones -->
+                            <div class="atencion-field-title">Observaciones</div>
+                            <!-- Texto de las observaciones -->
+                            <div class="atencion-field-text">{{ atencion.observaciones }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Fin de la iteración sobre las atenciones -->
+            {% endfor %}
+        </div>
+
+        <!-- Botón para volver al panel de administración -->
+        <div class="btn-container">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Volver al Panel
+            </a>
+        </div>
+    </div>
+</body>
+</html>

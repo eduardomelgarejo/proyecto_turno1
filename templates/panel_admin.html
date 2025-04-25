@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='images/NextFlow_Logo_blanco.png') }}">
+    <title>Panel de Administración - NEXTFLOW</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Contenedor de administración -->
+    <div class="admin-container">
+        <!-- Título de la página -->
+        <h1>Panel de Administración</h1>
+        <!-- Lista de opciones -->
+        <ul>
+            <!-- Opción para gestionar profesionales -->
+            <li>
+                <a href="{{ url_for('main.gestionar_profesionales') }}">
+                    <i class="fas fa-user-md"></i>
+                    Gestionar Profesionales
+                </a>
+            </li>
+            <!-- Opción para gestionar turnos -->
+            <li>
+                <a href="{{ url_for('main.gestionar_turnos') }}">
+                    <i class="fas fa-calendar-alt"></i>
+                    Gestionar Turnos
+                </a>
+            </li>
+            <!-- Opción para gestionar boxes -->
+            <li>
+                <a href="{{ url_for('main.agendamiento_boxes') }}">
+                    <i class="fas fa-boxes"></i>
+                    Gestionar Boxes
+                </a>
+            </li>
+            <!-- Opción para cerrar sesión -->
+            <li>
+                <a href="{{ url_for('main.logout') }}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar sesión
+                </a>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>

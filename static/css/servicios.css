@@ -1,0 +1,610 @@
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --accent-color: #e74c3c;
+    --text-color: #333;
+    --light-text: #666;
+    --white: #fff;
+    --light-gray: #f5f5f5;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    line-height: 1.6;
+    color: var(--text-color);
+    background: linear-gradient(135deg, 
+        rgba(44, 62, 80, 0.05) 0%, 
+        rgba(52, 152, 219, 0.05) 50%, 
+        rgba(231, 76, 60, 0.05) 100%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+.servicios-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 0 3rem 0;
+    margin-top: 40px;
+    
+}
+
+.servicios-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.servicios-header h1 {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.servicios-header p {
+    color: var(--light-text);
+    font-size: 1.1rem;
+}
+
+.back-button {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
+    background: var(--white);
+    box-shadow: var(--box-shadow);
+}
+
+.back-button:hover {
+    background-color: var(--light-gray);
+    transform: translateX(-5px);
+}
+
+.back-button i {
+    transition: transform 0.3s ease;
+}
+
+.back-button:hover i {
+    transform: translateX(-3px);
+}
+
+.header-description {
+    position: relative;
+    margin: 0 auto;
+    max-width: 800px;
+    padding: 0.5rem;
+    text-align: center;
+}
+
+.description-text {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+    position: relative;
+    padding: 0rem;
+    font-weight: 300;
+    letter-spacing: 0.8px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.description-line {
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        var(--secondary-color) 50%, 
+        transparent 100%);
+    width: 60%;
+    margin: 0 auto;
+    opacity: 0.7;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.servicios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 0 1rem;
+}
+
+.servicio-card {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--box-shadow);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    height: auto;
+    min-height: 350px;
+    display: flex;
+    flex-direction: column;
+}
+
+.servicio-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.servicio-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.servicio-card:hover::before {
+    transform: scaleX(1);
+}
+
+.servicio-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.75rem;
+    transition: transform 0.3s ease;
+}
+
+.servicio-card:hover .servicio-icon {
+    transform: scale(1.1);
+    color: var(--secondary-color);
+}
+
+.servicio-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.75rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.servicio-card p {
+    color: var(--light-text);
+    line-height: 1.4;
+    margin-bottom: 1rem;
+    flex-grow: 0;
+    font-size: 0.95rem;
+}
+
+.servicio-features {
+    list-style: none;
+    margin-top: auto;
+    padding-top: 0.5rem;
+}
+
+.servicio-features li {
+    color: var(--text-color);
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.servicio-features li i {
+    color: var(--accent-color);
+}
+
+footer {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 1rem 0;
+    margin-top: 0rem;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.footer-section h3 {
+    color: var(--white);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.contact-item i {
+    color: var(--secondary-color);
+}
+
+.social-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.social-links a {
+    color: var(--white);
+    font-size: 1.5rem;
+    transition: color 0.3s ease;
+}
+
+.social-links a:hover {
+    color: var(--secondary-color);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 2rem;
+    margin-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+    .servicios-container {
+        padding: 0.5rem 1rem;
+        margin-top: 30px;
+    }
+
+    .back-button {
+        position: relative;
+        margin-bottom: 1rem;
+        justify-content: center;
+    }
+
+    .servicios-header h1 {
+        font-size: 2rem;
+    }
+
+    .description-text {
+        font-size: 1.5rem;
+        padding: 0 0.5rem;
+    }
+
+    .servicios-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .contact-item {
+        justify-content: center;
+    }
+
+    .social-links {
+        justify-content: center;
+    }
+
+    .header-description {
+        margin: 0.5rem auto;
+        padding: 1rem;
+    }
+
+    .servicio-card {
+        min-height: auto;
+        padding: 1.25rem;
+    }
+
+    .precios-slider {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .precio-card {
+        width: 100%;
+        max-width: 300px;
+        min-height: auto;
+        margin-bottom: 1rem;
+    }
+
+    .precio-card.destacado {
+        transform: none;
+    }
+
+    .precio-card.destacado:hover {
+        transform: translateY(-10px);
+    }
+}
+
+@media (max-width: 480px) {
+    .servicios-container {
+        margin-top: 20px;
+    }
+
+    .servicios-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .description-text {
+        font-size: 1.3rem;
+        letter-spacing: 0.5px;
+    }
+
+    .servicio-card {
+        padding: 1rem;
+    }
+
+    .precio-card {
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .precio {
+        font-size: 1.8rem;
+    }
+
+    .precio-features li {
+        font-size: 0.85rem;
+    }
+
+    .header-description {
+        padding: 0.8rem;
+    }
+}
+
+/* Sección de Precios */
+.precios-section {
+    padding: 1rem 0 3rem 0;
+    background: linear-gradient(135deg, 
+        rgba(44, 62, 80, 0.03) 0%, 
+        rgba(52, 152, 219, 0.03) 50%, 
+        rgba(231, 76, 60, 0.03) 100%);
+}
+
+.precios-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0 1rem;
+}
+
+.precios-container h2 {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.precios-subtitle {
+    color: var(--light-text);
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.precios-slider {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 0;
+    flex-wrap: wrap;
+}
+
+.precio-card {
+    flex: 0 0 300px;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: auto;
+    margin-bottom: 0;
+    border: none;
+    overflow: hidden;
+}
+
+.precio-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+.precio-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.precio-header {
+    margin-bottom: 1rem;
+    text-align: center;
+    position: relative;
+    padding-bottom: 0;
+}
+
+.precio-header h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.precio {
+    font-size: 2.2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    margin: 0.75rem 0;
+    color: var(--primary-color);
+}
+
+.precio .moneda {
+    font-size: 1.3rem;
+    color: var(--secondary-color);
+}
+
+.precio .valor {
+    font-size: 2.2rem;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+.precio .periodo {
+    font-size: 0.9rem;
+    color: var(--light-text);
+    align-self: flex-end;
+    margin-bottom: 0.3rem;
+}
+
+.precio-desc {
+    color: var(--light-text);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    display: block;
+    text-align: center;
+}
+
+.precio-features {
+    list-style: none;
+    margin: 1.5rem 0;
+    text-align: left;
+    flex-grow: 1;
+}
+
+.precio-features li {
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    padding: 0.25rem 0;
+}
+
+.precio-features li i {
+    color: var(--secondary-color);
+    font-size: 1rem;
+}
+
+/* Eliminar estilos específicos del plan destacado */
+.precio-card.destacado {
+    background: var(--white);
+    transform: none;
+    border: none;
+}
+
+.precio-card.destacado:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.precio-card.destacado .precio .valor {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+.precio-card.destacado .precio-header h3,
+.precio-card.destacado .precio,
+.precio-card.destacado .precio .moneda,
+.precio-card.destacado .precio .periodo,
+.precio-card.destacado .precio-desc {
+    color: var(--text-color);
+}
+
+.precio-card.destacado .precio-features li i {
+    color: var(--secondary-color);
+}
+
+.precio-card.destacado::before {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+.precio-btn {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    background: var(--primary-color);
+    color: var(--white);
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
+    width: 100%;
+    text-align: center;
+    margin-top: auto;
+}
+
+.precio-btn:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.precio-card.destacado .precio-btn {
+    background: var(--primary-color);
+    color: var(--white);
+}
+
+.precio-card.destacado .precio-btn:hover {
+    background: var(--secondary-color);
+    color: var(--white);
+}
+
+@media (max-width: 768px) {
+    .precio-card {
+        padding: 1.5rem;
+    }
+
+    .precio {
+        font-size: 2rem;
+    }
+
+    .precio .valor {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .precio-card {
+        padding: 1.25rem;
+    }
+
+    .precio-header h3 {
+        font-size: 1.3rem;
+    }
+
+    .precio {
+        font-size: 1.8rem;
+    }
+
+    .precio .valor {
+        font-size: 1.8rem;
+    }
+
+    .precio-features li {
+        font-size: 0.9rem;
+    }
+} 

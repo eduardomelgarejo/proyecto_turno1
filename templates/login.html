@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='images/NextFlow_Logo_blanco.png') }}">
+    <title>Login - NEXTFLOW</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Contenedor de login -->
+    <div class="login-container">
+        <!-- Botón para volver a la página principal -->
+        <a href="{{ url_for('main.home') }}" class="back-arrow">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <!-- Título de la página -->
+        <h1>Iniciar Sesión</h1>
+        <!-- Formulario de inicio de sesión -->
+        <form action="{{ url_for('main.login') }}" method="POST">
+            <!-- Campo de correo o nombre de usuario -->
+            <div class="form-group">
+                <label for="identificador">Correo o nombre de usuario:</label>
+                <input type="text" id="identificador" name="identificador" autofocus placeholder="Ingrese su correo o usuario">
+            </div>
+            <!-- Campo de contraseña -->
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required placeholder="Ingrese su contraseña">
+            </div>
+            <!-- Botón de inicio de sesión -->
+            <button type="submit">Iniciar sesión</button>
+            <!-- Enlace para registrarse -->
+            <div class="register-link">
+                <p>¿No tienes cuenta? Regístrate <a href="{{ url_for('main.register') }}">aquí</a></p>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+

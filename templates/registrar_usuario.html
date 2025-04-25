@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='images/NextFlow_Logo_blanco.png') }}">
+    <title>Registro - NEXTFLOW</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registrar_usuario.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="register-container">
+        <!-- Botón para volver a la página de inicio de sesión -->
+        <a href="{{ url_for('main.login') }}" class="back-arrow">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <!-- Título de la página -->
+        <h1>Crear Cuenta</h1>
+        <!-- Formulario de registro -->
+        <form action="{{ url_for('main.register') }}" method="POST">
+            <!-- Campo de rut -->
+            <div class="form-group">
+                <label for="rut">Rut:</label>
+                <div class="rut-input-group">
+                    <input type="text" id="rut" name="rut" class="rut-input" required placeholder="11.111.111" pattern="\d{1,2}\.\d{3}\.\d{3}" maxlength="10">
+                    <span class="separador">-</span>
+                    <input type="text" id="dv" name="dv" class="dv-input" required placeholder="0" pattern="[0-9kK]" maxlength="1">
+                </div>
+                <small class="error-message" id="rutError"></small>
+            </div>
+            <!-- Campo oculto para tipo de usuario -->
+            <input type="hidden" name="tipo_usuario" value="paciente">
+            <!-- Campo de nombre de usuario -->
+            <div class="form-group">
+                <label for="nombre_usuario">Nombre de Usuario:</label>
+                <input type="text" id="nombre_usuario" name="nombre_usuario" required placeholder="Ingrese su nombre de usuario">
+            </div>
+            <!-- Campo de nombre completo -->
+            <div class="form-group">
+                <label for="nombre_completo">Nombre Completo:</label>
+                <input type="text" id="nombre_completo" name="nombre_completo" required placeholder="Ingrese su nombre completo">
+            </div>
+            <div class="form-group">
+                <label for="direccion">Dirección:</label>
+                <input type="text" id="direccion" name="direccion" required placeholder="Ingrese su dirección completa">
+            </div>
+            <div class="form-group">
+                <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
+                <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
+            </div>
+            <!-- Campo de teléfono -->
+            <div class="form-group">
+                <label for="telefono">Teléfono:</label>
+                <input type="tel" id="telefono" name="telefono" required placeholder="9XXXXXXXX" pattern="9\d{8}" maxlength="9">
+                <small class="error-message" id="telefonoError"></small>
+            </div>
+            <!-- Campo de correo electrónico -->
+            <div class="form-group">
+                <label for="correo">Correo Electrónico:</label>
+                <input type="email" id="correo" name="correo" required placeholder="Ingrese su correo electrónico">
+            </div>
+            <!-- Campo de contraseña -->
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required placeholder="Ingrese su contraseña">
+            </div>
+            <!-- Campo de confirmación de contraseña -->
+            <div class="form-group">
+                <label for="confirm_password">Confirmar Contraseña:</label>
+                <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirme su contraseña">
+            </div>           
+            <!-- Botón de registro -->
+            <button type="submit">Registrarse</button>
+            <!-- Enlace para iniciar sesión -->
+            <div class="login-link">
+                <p>¿Ya tienes una cuenta?</p>
+                <a href="{{ url_for('main.login') }}" class="login-button">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Iniciar Sesión
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Función para validar RUT chileno
+        function validarRut(rut, dv) {
+            // Eliminar puntos y guión
+            rut = rut.replace(/\./g, '');
+            
+            // Calcular dígito verificador
+            let suma = 0;
+            let multiplicador = 2;
+            
+            for (let i = rut.length - 1; i >= 0; i--) {
+                suma += parseInt(rut[i]) * multiplicador;
+                multiplicador = multiplicador === 7 ? 2 : multiplicador + 1;
+            }
+            
+            let dvEsperado = 11 - (suma % 11);
+            if (dvEsperado === 11) dvEsperado = '0';
+            if (dvEsperado === 10) dvEsperado = 'K';
+            
+            return dv.toUpperCase() === dvEsperado.toString();
+        }
+
+        // Función para formatear RUT
+        function formatearRut(rut) {
+            // Eliminar todos los puntos existentes
+            rut = rut.replace(/\./g, '');
+            
+            // Si el RUT está vacío, retornar vacío
+            if (rut.length === 0) return '';
+            
+            // Formatear el RUT
+            let rutFormateado = '';
+            let contador = 0;
+            
+            // Recorrer el RUT de derecha a izquierda
+            for (let i = rut.length - 1; i >= 0; i--) {
+                rutFormateado = rut[i] + rutFormateado;
+                contador++;
+                
+                // Agregar punto cada 3 dígitos, excepto al final
+                if (contador === 3 && i > 0) {
+                    rutFormateado = '.' + rutFormateado;
+                    contador = 0;
+                }
+            }
+            
+            return rutFormateado;
+        }
+
+        // Event listeners para validación
+        document.getElementById('rut').addEventListener('input', function(e) {
+            let valor = e.target.value.replace(/\./g, '');
+            if (valor.length > 0) {
+                e.target.value = formatearRut(valor);
+            }
+        });
+
+        document.getElementById('rut').addEventListener('blur', function() {
+            const rut = this.value;
+            const dv = document.getElementById('dv').value;
+            const errorElement = document.getElementById('rutError');
+            
+            if (!validarRut(rut, dv)) {
+                errorElement.textContent = 'RUT inválido';
+                this.classList.add('input-error');
+                document.getElementById('dv').classList.add('input-error');
+            } else {
+                errorElement.textContent = '';
+                this.classList.remove('input-error');
+                document.getElementById('dv').classList.remove('input-error');
+            }
+        });
+
+        document.getElementById('dv').addEventListener('blur', function() {
+            const rut = document.getElementById('rut').value;
+            const dv = this.value;
+            const errorElement = document.getElementById('rutError');
+            
+            if (!validarRut(rut, dv)) {
+                errorElement.textContent = 'Dígito verificador inválido';
+                this.classList.add('input-error');
+                document.getElementById('rut').classList.add('input-error');
+            } else {
+                errorElement.textContent = '';
+                this.classList.remove('input-error');
+                document.getElementById('rut').classList.remove('input-error');
+            }
+        });
+
+        document.getElementById('telefono').addEventListener('input', function(e) {
+            let valor = e.target.value.replace(/\D/g, '');
+            if (valor.length > 0 && valor[0] !== '9') {
+                valor = '9' + valor.slice(1);
+            }
+            e.target.value = valor;
+        });
+
+        document.getElementById('telefono').addEventListener('blur', function() {
+            const telefono = this.value;
+            const errorElement = document.getElementById('telefonoError');
+            
+            if (telefono.length !== 9 || telefono[0] !== '9') {
+                errorElement.textContent = 'El teléfono debe comenzar con 9 y tener 9 dígitos';
+                this.classList.add('input-error');
+            } else {
+                errorElement.textContent = '';
+                this.classList.remove('input-error');
+            }
+        });
+
+        // Agregamos event listeners para limpiar errores al escribir
+        document.getElementById('rut').addEventListener('input', function() {
+            this.classList.remove('input-error');
+            document.getElementById('dv').classList.remove('input-error');
+            document.getElementById('rutError').textContent = '';
+        });
+
+        document.getElementById('dv').addEventListener('input', function() {
+            this.classList.remove('input-error');
+            document.getElementById('rut').classList.remove('input-error');
+            document.getElementById('rutError').textContent = '';
+        });
+
+        document.getElementById('telefono').addEventListener('input', function() {
+            this.classList.remove('input-error');
+            document.getElementById('telefonoError').textContent = '';
+        });
+    </script>
+</body>
+</html>
