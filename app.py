@@ -3,6 +3,7 @@ from flask_login import LoginManager
 from config import Config
 from models import db
 from rutas import main_bp  # Importamos el blueprint
+from flask_session import Session
 
 # Inicializar la aplicación
 app = Flask(__name__)
@@ -17,6 +18,10 @@ login_manager.init_app(app)
 
 # Registrar el blueprint
 app.register_blueprint(main_bp)
+
+# Configurar Flask-Session
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 
 # Cargar el usuario actual
 @login_manager.user_loader

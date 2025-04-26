@@ -49,6 +49,7 @@ class Profesional(db.Model):
     id_usuario = db.Column(db.Integer, db.ForeignKey('Usuarios.id_usuario'), unique=True) # ID del usuario
     especialidad = db.Column(db.String(100)) # Especialidad
     perfil = db.Column(db.Text) # Perfil
+    certificacion = db.Column(db.String(255)) # Certificación del médico
     
     # Relación con el modelo Usuario
     usuario = db.relationship('Usuario', backref=db.backref('profesional', uselist=False))

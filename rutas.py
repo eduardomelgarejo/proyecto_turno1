@@ -1,8 +1,11 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
+from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, Flask
 from flask_login import login_user, login_required, logout_user, current_user
 from models import db, Usuario,TurnoProfesional, Profesional, FichaPaciente, HistorialAtencion, Box, DisponibilidadBox
 from datetime import datetime
+from flask_socketio import SocketIO, emit
 
+app = Flask(__name__)
+socketio = SocketIO(app)
 
 # Definimos un blueprint para organizar las rutas
 main_bp = Blueprint('main', __name__)
@@ -164,6 +167,14 @@ def agendar_turno():
         hora_entrada = request.form['hora_entrada']
         hora_salida = request.form['hora_salida']
 
+        # Validar que no haya conflictos de horarios
+        conflicto = TurnoProfesional.query.filter_by(fecha=fecha, id_profesional=id_profesional).filter(
+            (TurnoProfesional.hora_entrada < hora_salida) & (TurnoProfesional.hora_salida > hora_entrada)
+        ).first()
+        if conflicto:
+            flash('El horario seleccionado ya está ocupado', 'warning')
+            return redirect(url_for('main.agendar_turno'))
+
         # Crear el nuevo turno
         nuevo_turno = TurnoProfesional(
             id_profesional=id_profesional,
@@ -214,6 +225,39 @@ def historial_atenciones():
     
     historial = HistorialAtencion.query.filter_by(id_paciente=current_user.id_usuario).all()
     return render_template('historial_atenciones.html', historial=historial)
+
+@main_bp.route('/descargar_historial_pdf')
+@login_required
+def descargar_historial_pdf():
+    if current_user.tipo_usuario != 'paciente':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('main.dashboard'))
+
+    historial = HistorialAtencion.query.filter_by(id_paciente=current_user.id_usuario).all()
+
+    # Generar PDF
+    from flask import make_response
+    from io import BytesIO
+    from reportlab.pdfgen import canvas
+
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer)
+
+    p.drawString(100, 750, "Historial de Atenciones")
+    y = 720
+    for atencion in historial:
+        p.drawString(100, y, f"Fecha: {atencion.fecha}, Detalle: {atencion.detalle}")
+        y -= 20
+
+    p.showPage()
+    p.save()
+
+    buffer.seek(0)
+    response = make_response(buffer.read())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=historial_atenciones.pdf'
+
+    return response
 
 @main_bp.route('/servicios')
 def servicios():
@@ -475,6 +519,86 @@ def crear_boxes():
 @login_required
 def chat_profesional():
     return render_template('chat_profesional.html')
+
+@main_bp.route('/cambiar_turno/<int:id_turno>', methods=['GET', 'POST'])
+@login_required
+def cambiar_turno(id_turno):
+    # Verificar que el usuario sea paciente
+    if current_user.tipo_usuario != 'paciente':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('main.dashboard'))
+
+    turno = TurnoProfesional.query.get(id_turno)
+    if not turno:
+        flash('Turno no encontrado', 'warning')
+        return redirect(url_for('main.dashboard'))
+
+    if request.method == 'POST':
+        nueva_fecha = request.form['fecha']
+        nueva_hora_entrada = request.form['hora_entrada']
+        nueva_hora_salida = request.form['hora_salida']
+
+        # Validar que no haya conflictos de horarios
+        conflicto = TurnoProfesional.query.filter_by(fecha=nueva_fecha, hora_entrada=nueva_hora_entrada).first()
+        if conflicto:
+            flash('El horario seleccionado ya está ocupado', 'warning')
+            return redirect(url_for('main.cambiar_turno', id_turno=id_turno))
+
+        # Actualizar el turno
+        turno.fecha = nueva_fecha
+        turno.hora_entrada = nueva_hora_entrada
+        turno.hora_salida = nueva_hora_salida
+        db.session.commit()
+        flash('Turno actualizado con éxito', 'success')
+        return redirect(url_for('main.dashboard'))
+
+    return render_template('cambiar_turno.html', turno=turno)
+
+@main_bp.route('/descargar_perfil_medico_pdf/<int:id_profesional>')
+@login_required
+def descargar_perfil_medico_pdf(id_profesional):
+    if current_user.tipo_usuario != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('main.dashboard'))
+
+    profesional = Profesional.query.get_or_404(id_profesional)
+
+    # Generar PDF
+    from flask import make_response
+    from io import BytesIO
+    from reportlab.pdfgen import canvas
+
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer)
+
+    p.drawString(100, 750, "Perfil del Médico")
+    p.drawString(100, 730, f"Nombre: {profesional.usuario.nombre_completo}")
+    p.drawString(100, 710, f"Especialidad: {profesional.especialidad}")
+    p.drawString(100, 690, f"Correo: {profesional.usuario.correo}")
+    p.drawString(100, 670, f"Teléfono: {profesional.usuario.telefono}")
+
+    p.showPage()
+    p.save()
+
+    buffer.seek(0)
+    response = make_response(buffer.read())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=perfil_medico_{id_profesional}.pdf'
+
+    return response
+
+@socketio.on('connect')
+def handle_connect():
+    print('Cliente conectado')
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Cliente desconectado')
+
+@socketio.on('send_message')
+def handle_send_message(data):
+    # Aquí se manejará el envío de mensajes
+    emit('receive_message', data, broadcast=True)
 
 
 
