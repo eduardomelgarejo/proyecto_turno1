@@ -23,12 +23,6 @@ Plataforma web de gestión médica desarrollada en Flask. Este sistema permite a
 - [ ] Agregar rutas a los dos primeros botones del panel.
 
 
-### 🔐 Seguridad
-- [ ] Implementar token de sesión utilizando `Flask-Session`.
-- [ ] (realizado pero con dudad)
-
----
-
 ## 📈 Escalabilidad (Futuras mejoras)
 
 - [ ] Validar la certificación del médico.
