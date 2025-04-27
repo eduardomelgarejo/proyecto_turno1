@@ -23,6 +23,7 @@ Plataforma web de gestión médica desarrollada en Flask. Este sistema permite a
 ## 📈 Escalabilidad (Futuras mejoras)
 
 - [ ] Validar la certificación del médico.
+    (pagina web para verificar certificado https://certificados.mineduc.cl/certificados-web/mvc/validar/ingresarCodigo)
 - [ ] Asistente virtual integrado.
 - [ ] Recordatorio de citas:
 - [ ] Envío de mensajes a correo o WhatsApp (Twilio para Whatsapp y Flask_Mail para Correo).
