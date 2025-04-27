@@ -114,12 +114,14 @@ class Chat(db.Model):
     fecha_envio = db.Column(db.DateTime)
 
 class Box(db.Model):
-    __tablename__ = 'Boxes' # Nombre de la tabla
-    id_box = db.Column(db.Integer, primary_key=True) # ID del box
-    tipo_box = db.Column(db.String(100)) # Tipo de box
-    capacidad = db.Column(db.Integer) # Capacidad
-    equipamiento = db.Column(db.Text) # Equipamiento
-    disponible = db.Column(db.Boolean) # Disponible
+    __tablename__ = 'Boxes'  # Nombre de la tabla
+    id_box = db.Column(db.Integer, primary_key=True)  # ID del box
+    nombre = db.Column(db.String(100))  # Nombre del box
+    ubicacion = db.Column(db.String(100))  # Ubicación del box
+    tipo_box = db.Column(db.String(100))  # Tipo de box
+    capacidad = db.Column(db.Integer)  # Capacidad
+    equipamiento = db.Column(db.Text)  # Equipamiento
+    disponible = db.Column(db.Boolean)  # Disponible
     id_profesional = db.Column(db.Integer, db.ForeignKey('Profesionales.id_profesional'))
 
 class DisponibilidadBox(db.Model):

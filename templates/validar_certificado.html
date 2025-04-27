@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validar Certificado</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Validar Certificado</h1>
+        <form method="POST" action="/validar-certificado">
+            <div class="form-group">
+                <label for="codigo_verificacion">Código de Verificación:</label>
+                <input type="text" id="codigo_verificacion" name="codigo_verificacion" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Validar</button>
+        </form>
+    </div>
+</body>
+</html>

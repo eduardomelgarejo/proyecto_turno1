@@ -36,6 +36,17 @@
                     Gestionar Boxes
                 </a>
             </li>
+            <!-- Opción para registro de box -->
+            <li>
+                <a href="{{ url_for('main.ingreso_registro_boxes') }}">
+                    <i class="fas fa-hospital"></i>
+                    Registro de Box
+                </a>
+            </li>
+            <!-- Opción para validar certificado -->
+            <li>
+                <a href="https://certificados.mineduc.cl/certificados-web/mvc/validar/ingresarCodigo" target="_blank">Validar Certificado</a>
+            </li>
             <!-- Opción para cerrar sesión -->
             <li>
                 <a href="{{ url_for('main.logout') }}">

@@ -1095,6 +1095,46 @@ def agendar_cita():
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Error al agendar la cita: {str(e)}'})
 
+@main_bp.route('/ingreso_registro_boxes', methods=['GET', 'POST'])
+@login_required
+def ingreso_registro_boxes():
+    # Verificar que el usuario sea administrador
+    if current_user.tipo_usuario != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('main.dashboard'))
+
+    if request.method == 'POST':
+        try:
+            # Obtener datos del formulario
+            nombre_box = request.form['nombre_box']
+            ubicacion = request.form['ubicacion']
+            tipo_box = request.form['tipo_box']
+            capacidad = request.form['capacidad']
+            equipamiento = request.form['equipamiento']
+            disponible = request.form.get('disponible') == 'true'
+
+            # Crear nuevo box con id_profesional como None
+            nuevo_box = Box(
+                nombre=nombre_box,
+                ubicacion=ubicacion,
+                tipo_box=tipo_box,
+                capacidad=int(capacidad),
+                equipamiento=equipamiento,
+                disponible=disponible,
+                id_profesional=None  # Establecer como None para permitir NULL en la base de datos
+            )
+            db.session.add(nuevo_box)
+            db.session.commit()
+
+            flash('Box registrado con éxito', 'success')
+            return redirect(url_for('main.ingreso_registro_boxes'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al registrar el box: {str(e)}', 'danger')
+            return redirect(url_for('main.ingreso_registro_boxes'))
+
+    return render_template('registro_box.html')
+
 
 
 

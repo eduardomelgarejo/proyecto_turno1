@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Box</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header" style="display: flex; align-items: center;">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary" style="background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 20px;">Volver al Panel</a>
+            <h1>Registro de Box</h1>
+        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} {{ 'alert-success' if category == 'success' else 'alert-error' }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <div class="form-group">
+                <label for="nombre_box">Nombre del Box:</label>
+                <input type="text" id="nombre_box" name="nombre_box" required>
+            </div>
+            <div class="form-group">
+                <label for="ubicacion">Ubicación:</label>
+                <input type="text" id="ubicacion" name="ubicacion" required>
+            </div>
+            <div class="form-group">
+                <label for="tipo_box">Tipo de Box:</label>
+                <input type="text" id="tipo_box" name="tipo_box" required>
+            </div>
+            <div class="form-group">
+                <label for="capacidad">Capacidad:</label>
+                <input type="number" id="capacidad" name="capacidad" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="equipamiento">Equipamiento:</label>
+                <textarea id="equipamiento" name="equipamiento" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="disponible">Disponible:</label>
+                <select id="disponible" name="disponible">
+                    <option value="true">Disponible</option>
+                    <option value="false">No disponible</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Registrar Box</button>
+        </form>
+    </div>
+</body>
+</html> 

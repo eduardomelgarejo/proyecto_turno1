@@ -1,10 +1,11 @@
-from flask import Flask, session, request
+from flask import Flask, session, request, render_template, redirect, url_for
 from flask_login import LoginManager
 from config import Config
-from models import db, Usuario  # Importar Usuario aquí
+from models import db, Usuario, Box  # Importar Usuario y Box aquí
 from rutas import main_bp, socketio  # Importamos el blueprint y socketio
 from flask_session import Session
 from sesion import sesion_bp  # Importar el Blueprint
+import requests
 
 # Inicializar la aplicación
 app = Flask(__name__)
@@ -50,6 +51,25 @@ def login():
         session['user_id'] = user.id_usuario  # Almacenar el id_usuario en la sesión
         return 'Usuario autenticado'
     return 'Error de autenticación'
+
+def ingreso_registro_boxes():
+    try:
+        # Crear y agregar un nuevo box a la sesión
+        nuevo_box = Box(tipo_box='tipo', capacidad=10, equipamiento='equipamiento', disponible=True, id_profesional=1)
+        db.session.add(nuevo_box)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error al registrar el box: {e}")
+    finally:
+        db.session.close()
+
+@app.route('/validar-certificado', methods=['GET', 'POST'])
+def validar_certificado():
+    if request.method == 'POST':
+        # Redirigir al usuario a la página del portal de certificados
+        return redirect('https://certificados.mineduc.cl/certificados-web/mvc/validar/ingresarCodigo')
+    
 
 # Iniciar la aplicación
 if __name__ == '__main__':
