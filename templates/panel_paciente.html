@@ -28,9 +28,16 @@
             </li>
             <li>
                 <!-- Botón para agendar un turno -->
-                <a href="{{ url_for('main.agendar_turno') }}">
+                <a href="{{ url_for('main.agendar_cita_paciente') }}">
                     <i class="fas fa-calendar-plus"></i>
                     Agendar Cita
+                </a>
+            </li>
+            <li>
+                <!-- Botón para chat -->
+                <a href="{{ url_for('main.chat_paciente') }}">
+                    <i class="fas fa-comments"></i>
+                    Chat con Profesionales
                 </a>
             </li>
             <li>

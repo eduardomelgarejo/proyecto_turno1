@@ -95,6 +95,10 @@
                 <i class="fas fa-arrow-left"></i>
                 Volver al Panel
             </a>
+            <a href="{{ url_for('main.descargar_ficha_paciente_pdf', id_paciente=paciente.id_usuario) }}" class="btn btn-download">
+                <i class="fas fa-file-pdf"></i>
+                Descargar PDF
+            </a>
         </div>
     </div>
 </body>

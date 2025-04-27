@@ -20,7 +20,7 @@
         <!-- Formulario de registro -->
         <div class="form-container">
             <h2>Registrar Nuevo Profesional</h2>
-            <form action="{{ url_for('main.registrar_profesional') }}" method="POST">
+            <form action="{{ url_for('main.registrar_profesional') }}" method="POST" id="registroForm">
                 <div class="form-group">
                     <label for="nombre_usuario">Nombre de Usuario:</label>
                     <input type="text" id="nombre_usuario" name="nombre_usuario" required 
@@ -126,6 +126,22 @@
         </div>
     </div>
 
+    <!-- Modal de éxito -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header success">
+                <i class="fas fa-check-circle"></i>
+                <h3>¡Éxito!</h3>
+            </div>
+            <div class="modal-body">
+                <p>El profesional ha sido registrado exitosamente.</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal()" class="btn-ok">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Función para buscar profesionales
         document.getElementById('searchInput').addEventListener('keyup', function() {
@@ -164,6 +180,60 @@
                 }
             });
         });
+
+        // Manejar el envío del formulario
+        document.getElementById('registroForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccessModal();
+                    this.reset();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al registrar el profesional. Por favor, intente nuevamente.');
+            });
+        });
+
+        // Función para mostrar el modal de éxito
+        function showSuccessModal() {
+            const modal = document.getElementById('successModal');
+            modal.style.display = 'flex';
+            // Posicionar el modal debajo del formulario
+            const formContainer = document.querySelector('.form-container');
+            const formRect = formContainer.getBoundingClientRect();
+            const modalContent = modal.querySelector('.modal-content');
+            modalContent.style.position = 'absolute';
+            modalContent.style.top = `${formRect.bottom + 20}px`;
+            modalContent.style.left = '50%';
+            modalContent.style.transform = 'translateX(-50%)';
+        }
+
+        // Función para cerrar el modal
+        function closeModal() {
+            const modal = document.getElementById('successModal');
+            modal.style.display = 'none';
+            location.reload(); // Recargar la página después de cerrar el modal
+        }
+
+        // Cerrar el modal si se hace clic fuera de él
+        window.onclick = function(event) {
+            const modal = document.getElementById('successModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
     </script>
 </body>
 </html> 

@@ -16,9 +16,6 @@
                 <a href="{{ url_for('main.gestionar_profesionales') }}" class="btn-volver">
                     <i class="fas fa-arrow-left"></i> Volver
                 </a>
-                <a href="{{ url_for('main.descargar_perfil_medico_pdf', id_profesional=profesional.id_profesional) }}" class="btn-descargar">
-                    <i class="fas fa-download"></i> Descargar PDF
-                </a>
             </div>
 
             <div class="info-container">
@@ -56,6 +53,13 @@
                             <p>{{ profesional.perfil }}</p>
                         </div>
                     </div>
+                </div>
+
+                <div class="actions">
+                    <a href="{{ url_for('main.descargar_perfil_medico_pdf', id_profesional=profesional.id_profesional) }}" class="btn-descargar">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Descargar Perfil en PDF</span>
+                    </a>
                 </div>
             </div>            
         </div>

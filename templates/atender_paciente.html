@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Gestión de Citas</h2>
+    
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="fecha">Fecha:</label>
+                <input type="date" class="form-control" id="fecha" name="fecha" value="{{ fecha_hoy.strftime('%Y-%m-%d') }}">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="estado">Estado:</label>
+                <select class="form-control" id="estado" name="estado">
+                    <option value="">Todos</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="confirmada">Confirmada</option>
+                    <option value="completada">Completada</option>
+                    <option value="cancelada">Cancelada</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Citas -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Paciente</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Estado</th>
+                    <th>Motivo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cita in citas %}
+                <tr>
+                    <td>{{ cita.paciente }}</td>
+                    <td>{{ cita.fecha.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ cita.hora.strftime('%H:%M') }}</td>
+                    <td>
+                        <span class="badge {% if cita.estado == 'pendiente' %}bg-warning
+                                         {% elif cita.estado == 'confirmada' %}bg-info
+                                         {% elif cita.estado == 'completada' %}bg-success
+                                         {% else %}bg-danger{% endif %}">
+                            {{ cita.estado|title }}
+                        </span>
+                    </td>
+                    <td>{{ cita.motivo or 'No especificado' }}</td>
+                    <td>
+                        <a href="{{ url_for('main.ver_ficha', id_reserva=cita.id) }}" class="btn btn-sm btn-primary">
+                            Ver Ficha
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">No hay citas para mostrar</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.getElementById('fecha').addEventListener('change', function() {
+    const fecha = this.value;
+    const estado = document.getElementById('estado').value;
+    window.location.href = `{{ url_for('main.atender_paciente') }}?fecha=${fecha}&estado=${estado}`;
+});
+
+document.getElementById('estado').addEventListener('change', function() {
+    const estado = this.value;
+    const fecha = document.getElementById('fecha').value;
+    window.location.href = `{{ url_for('main.atender_paciente') }}?fecha=${fecha}&estado=${estado}`;
+});
+</script>
+{% endblock %} 

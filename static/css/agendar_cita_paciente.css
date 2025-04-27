@@ -1,0 +1,182 @@
+/* Variables */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --accent-color: #e74c3c;
+    --text-color: #333;
+    --light-text: #666;
+    --white: #fff;
+    --light-gray: #f5f5f5;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Contenedor principal */
+.cita-container {
+    max-width: 800px;
+    width: 100%;
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+/* Botón de retroceso */
+.btn-retroceso {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: var(--primary-color);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-retroceso:hover {
+    color: var(--secondary-color);
+    transform: translateX(-5px);
+}
+
+/* Título */
+h1 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+}
+
+/* Formulario */
+.form-cita {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+label {
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+select, input, textarea {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+select:focus, input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Botón de agendamiento */
+.btn-agendar {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.btn-agendar:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+/* Mensajes */
+.mensaje {
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin-top: 20px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.mensaje-exito {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.mensaje-error {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .cita-container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    select, input, textarea {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    .cita-container {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    .btn-retroceso {
+        position: static;
+        margin-bottom: 20px;
+    }
+} 

@@ -33,12 +33,23 @@
         <!-- Título de la lista de turnos -->
         <h2>Lista de Turnos</h2>
 
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
         <!-- Tabla de turnos -->
         <table>
             <thead>
                 <tr>
                     <th>ID Turno</th>
-                    <th>Usuario (Profesional)</th>
+                    <th>Profesional</th>
+                    <th>Especialidad</th>
                     <th>Fecha</th>
                     <th>Hora Entrada</th>
                     <th>Hora Salida</th>
@@ -46,16 +57,16 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Iteración sobre los turnos -->
-                {% for turno in turnos %}
+                {% for turno, profesional, usuario in turnos %}
                 <tr>
                     <td>{{ turno.id_turno }}</td>
-                    <td>{{ turno.usuario.nombre }}</td>
-                    <td>{{ turno.fecha }}</td>
-                    <td>{{ turno.hora_entrada }}</td>
-                    <td>{{ turno.hora_salida }}</td>
+                    <td>{{ usuario.nombre_completo }}</td>
+                    <td>{{ profesional.especialidad }}</td>
+                    <td>{{ turno.fecha.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ turno.hora_entrada.strftime('%H:%M') }}</td>
+                    <td>{{ turno.hora_salida.strftime('%H:%M') }}</td>
                     <td>
-                    <!-- Botón para eliminar un turno -->
+                        <!-- Botón para eliminar un turno -->
                         <a href="{{ url_for('main.eliminar_turno', id_turno=turno.id_turno) }}" 
                            onclick="return confirm('¿Estás seguro de que deseas eliminar este turno?')">
                             <i class="fas fa-trash-alt"></i>
@@ -63,7 +74,6 @@
                         </a>
                     </td>
                 </tr>
-                <!-- Fin de la iteración sobre los turnos -->
                 {% endfor %}
             </tbody>
         </table>

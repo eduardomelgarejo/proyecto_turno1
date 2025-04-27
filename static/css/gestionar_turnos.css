@@ -166,6 +166,28 @@ td a:hover {
     color: var(--white);
 }
 
+/* Alertas */
+.alert {
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.alert-error {
+    background-color: rgba(231, 76, 60, 0.1);
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+}
+
+.alert-success {
+    background-color: rgba(46, 204, 113, 0.1);
+    border: 1px solid #2ecc71;
+    color: #2ecc71;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .turnos-container {

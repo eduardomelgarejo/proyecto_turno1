@@ -88,20 +88,32 @@
             // Eliminar puntos y guión
             rut = rut.replace(/\./g, '');
             
+            // Validar que el RUT tenga al menos 1 dígito
+            if (rut.length < 1) return false;
+            
             // Calcular dígito verificador
             let suma = 0;
             let multiplicador = 2;
             
+            // Recorrer el RUT de derecha a izquierda
             for (let i = rut.length - 1; i >= 0; i--) {
                 suma += parseInt(rut[i]) * multiplicador;
                 multiplicador = multiplicador === 7 ? 2 : multiplicador + 1;
             }
             
             let dvEsperado = 11 - (suma % 11);
-            if (dvEsperado === 11) dvEsperado = '0';
-            if (dvEsperado === 10) dvEsperado = 'K';
             
-            return dv.toUpperCase() === dvEsperado.toString();
+            // Convertir el dígito verificador esperado
+            if (dvEsperado === 11) {
+                dvEsperado = '0';
+            } else if (dvEsperado === 10) {
+                dvEsperado = 'K';
+            } else {
+                dvEsperado = dvEsperado.toString();
+            }
+            
+            // Comparar el dígito verificador ingresado con el esperado
+            return dv.toUpperCase() === dvEsperado;
         }
 
         // Función para formatear RUT

@@ -87,8 +87,8 @@ body {
     min-height: 500px;
 }
 
-/* Lista de pacientes */
-.pacientes-lista {
+/* Lista de profesionales */
+.profesionales-lista {
     width: 300px;
     border-right: 1px solid var(--light-gray);
     display: flex;
@@ -133,7 +133,7 @@ body {
     padding: 10px;
 }
 
-.paciente-item {
+.profesional-item {
     display: flex;
     align-items: center;
     padding: 15px;
@@ -145,29 +145,29 @@ body {
     border: 1px solid var(--light-gray);
 }
 
-.paciente-item:hover {
+.profesional-item:hover {
     transform: translateY(-2px);
     box-shadow: var(--box-shadow);
     border-color: var(--secondary-color);
 }
 
-.paciente-item.seleccionado {
+.profesional-item.seleccionado {
     background: var(--secondary-color);
     color: var(--white);
     border: none;
 }
 
-.paciente-info h3 {
+.profesional-info h3 {
     font-size: 16px;
     margin-bottom: 5px;
 }
 
-.paciente-info p {
+.profesional-info p {
     font-size: 14px;
     color: var(--light-text);
 }
 
-.paciente-item.seleccionado .paciente-info p {
+.profesional-item.seleccionado .profesional-info p {
     color: rgba(255, 255, 255, 0.9);
 }
 
@@ -272,7 +272,7 @@ body {
         height: calc(100vh - 150px);
     }
 
-    .pacientes-lista {
+    .profesionales-lista {
         width: 100%;
         height: 200px;
         border-right: none;

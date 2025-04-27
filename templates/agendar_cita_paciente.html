@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='images/NextFlow_Logo_blanco.png') }}">
+    <title>Agendar Cita - NEXTFLOW</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/agendar_cita_paciente.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="cita-container">
+        <!-- Botón de retroceso -->
+        <a href="{{ url_for('main.dashboard') }}" class="btn-retroceso">
+            <i class="fas fa-arrow-left"></i>
+            Volver al Panel
+        </a>
+
+        <h1>Agendar Cita Médica</h1>
+
+        <!-- Formulario de agendamiento -->
+        <form id="formCita" class="form-cita">
+            <!-- Selección de profesional -->
+            <div class="form-group">
+                <label for="profesional">Profesional:</label>
+                <select id="profesional" name="profesional" required>
+                    <option value="">Seleccione un profesional</option>
+                    {% for profesional in profesionales %}
+                    <option value="{{ profesional.id_profesional }}">
+                        {{ profesional.usuario.nombre_completo }} - {{ profesional.especialidad }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Selección de fecha -->
+            <div class="form-group">
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha" name="fecha" required min="{{ fecha_minima }}">
+            </div>
+
+            <!-- Selección de hora -->
+            <div class="form-group">
+                <label for="hora">Hora:</label>
+                <select id="hora" name="hora" required>
+                    <option value="">Seleccione una hora</option>
+                    <!-- Las horas se cargarán dinámicamente -->
+                </select>
+            </div>
+
+            <!-- Motivo de la consulta -->
+            <div class="form-group">
+                <label for="motivo">Motivo de la consulta:</label>
+                <textarea id="motivo" name="motivo" required placeholder="Describa brevemente el motivo de su consulta"></textarea>
+            </div>
+
+            <!-- Botón de agendamiento -->
+            <button type="submit" class="btn-agendar">
+                <i class="fas fa-calendar-check"></i>
+                Agendar Cita
+            </button>
+        </form>
+
+        <!-- Mensajes de error/éxito -->
+        <div id="mensaje" class="mensaje" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('formCita');
+            const profesionalSelect = document.getElementById('profesional');
+            const fechaInput = document.getElementById('fecha');
+            const horaSelect = document.getElementById('hora');
+            const mensajeDiv = document.getElementById('mensaje');
+
+            // Cargar horas disponibles cuando se selecciona un profesional y fecha
+            async function cargarHorasDisponibles() {
+                const profesionalId = profesionalSelect.value;
+                const fecha = fechaInput.value;
+
+                if (!profesionalId || !fecha) return;
+
+                try {
+                    const response = await fetch(`/obtener_horas_disponibles/${profesionalId}/${fecha}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+                        data.horas.forEach(hora => {
+                            const option = document.createElement('option');
+                            option.value = hora;
+                            option.textContent = hora;
+                            horaSelect.appendChild(option);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error al cargar horas:', error);
+                }
+            }
+
+            // Event listeners
+            profesionalSelect.addEventListener('change', cargarHorasDisponibles);
+            fechaInput.addEventListener('change', cargarHorasDisponibles);
+
+            // Manejar el envío del formulario
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const formData = {
+                    profesional_id: profesionalSelect.value,
+                    fecha: fechaInput.value,
+                    hora: horaSelect.value,
+                    motivo: document.getElementById('motivo').value
+                };
+
+                try {
+                    const response = await fetch('/agendar_cita', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        mensajeDiv.className = 'mensaje mensaje-exito';
+                        mensajeDiv.textContent = 'Cita agendada con éxito';
+                        form.reset();
+                    } else {
+                        mensajeDiv.className = 'mensaje mensaje-error';
+                        mensajeDiv.textContent = data.message;
+                    }
+
+                    mensajeDiv.style.display = 'block';
+                    setTimeout(() => {
+                        mensajeDiv.style.display = 'none';
+                    }, 3000);
+                } catch (error) {
+                    console.error('Error al agendar cita:', error);
+                    mensajeDiv.className = 'mensaje mensaje-error';
+                    mensajeDiv.textContent = 'Error al agendar la cita';
+                    mensajeDiv.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

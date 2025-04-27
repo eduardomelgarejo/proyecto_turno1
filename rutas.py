@@ -1,8 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, Flask
 from flask_login import login_user, login_required, logout_user, current_user
-from models import db, Usuario,TurnoProfesional, Profesional, FichaPaciente, HistorialAtencion, Box, DisponibilidadBox
-from datetime import datetime
+from models import db, Usuario,TurnoProfesional, Profesional, FichaPaciente, HistorialAtencion, Box, DisponibilidadBox, Reserva, Chat
+from datetime import datetime, timedelta
 from flask_socketio import SocketIO, emit
+from flask import get_flashed_messages
+from flask_socketio import join_room, leave_room
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -24,11 +26,14 @@ def login():
 
         if usuario and usuario.check_password(password):
             login_user(usuario)
-            return redirect(url_for('main.dashboard'))  # Cambié 'dashboard' para usar el blueprint
+            return redirect(url_for('main.dashboard'))
 
-        flash("Usuario o contraseña incorrectos.", "danger")  # Mostrar error
-        return render_template('login.html')
+        # Si las credenciales son incorrectas, mostrar mensaje de error
+        flash('Usuario o contraseña incorrectos', 'error')
+        return redirect(url_for('main.login'))
 
+    # Limpiar mensajes flash anteriores
+    get_flashed_messages()
     return render_template('login.html')
 
 
@@ -94,6 +99,10 @@ def register():
 @main_bp.route('/dashboard')
 @login_required
 def dashboard():
+    if not current_user.is_authenticated:
+        flash('Por favor inicie sesión para acceder a esta página', 'error')
+        return redirect(url_for('main.login'))
+
     if current_user.tipo_usuario == 'admin':
         return render_template('panel_admin.html')
     elif current_user.tipo_usuario == 'profesional':
@@ -103,7 +112,8 @@ def dashboard():
     elif current_user.tipo_usuario == 'ambos':
         return render_template('panel_ambos.html')
     else:
-        return "Tipo de usuario no reconocido", 403
+        flash('Tipo de usuario no reconocido', 'error')
+        return redirect(url_for('main.login'))
 
 
 # Ruta de Logout
@@ -144,12 +154,26 @@ def gestionar_profesionales():
 def gestionar_turnos():
     # Verificar que el usuario sea administrador
     if current_user.tipo_usuario != 'admin':
-        flash('No tienes permisos para acceder a esta página', 'danger')
+        flash('No tienes permisos para acceder a esta página', 'error')
         return redirect(url_for('main.dashboard'))
     
-    # Obtener todos los turnos
-    turnos = TurnoProfesional.query.all()
-    return render_template('gestionar_turnos.html', turnos=turnos)
+    try:
+        # Obtener todos los turnos con información del profesional
+        turnos = db.session.query(TurnoProfesional, Profesional, Usuario).join(
+            Usuario, TurnoProfesional.id_usuario == Usuario.id_usuario
+        ).join(
+            Profesional, Usuario.id_usuario == Profesional.id_usuario
+        ).order_by(TurnoProfesional.fecha.desc(), TurnoProfesional.hora_entrada.asc()).all()
+        
+        print(f"Turnos encontrados: {len(turnos)}")  # Debug
+        for turno, prof, user in turnos:
+            print(f"Turno: {turno.id_turno}, Profesional: {user.nombre_completo}, Fecha: {turno.fecha}")  # Debug
+        
+        return render_template('gestionar_turnos.html', turnos=turnos)
+    except Exception as e:
+        print(f"Error al obtener turnos: {str(e)}")  # Debug
+        flash(f'Error al obtener los turnos: {str(e)}', 'error')
+        return redirect(url_for('main.dashboard'))
 
 @main_bp.route('/eliminar_turno/<int:id_turno>', methods=['GET'])
 def eliminar_turno(id_turno):
@@ -160,49 +184,115 @@ def eliminar_turno(id_turno):
     return redirect(url_for('main.gestionar_turnos'))
 
 @main_bp.route('/agendar_turno', methods=['GET', 'POST'])
+@login_required
 def agendar_turno():
+    if current_user.tipo_usuario != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'error')
+        return redirect(url_for('main.dashboard'))
+
     if request.method == 'POST':
-        id_profesional = request.form['id_usuario']
-        fecha = request.form['fecha']
-        hora_entrada = request.form['hora_entrada']
-        hora_salida = request.form['hora_salida']
+        try:
+            # Obtener datos del formulario
+            id_usuario = request.form['id_usuario']
+            fecha = request.form['fecha']
+            hora_entrada = request.form['hora_entrada']
+            hora_salida = request.form['hora_salida']
 
-        # Validar que no haya conflictos de horarios
-        conflicto = TurnoProfesional.query.filter_by(fecha=fecha, id_profesional=id_profesional).filter(
-            (TurnoProfesional.hora_entrada < hora_salida) & (TurnoProfesional.hora_salida > hora_entrada)
-        ).first()
-        if conflicto:
-            flash('El horario seleccionado ya está ocupado', 'warning')
+            print(f"Datos recibidos: id_usuario={id_usuario}, fecha={fecha}, hora_entrada={hora_entrada}, hora_salida={hora_salida}")  # Debug
+
+            # Convertir la fecha y horas a objetos datetime
+            fecha_obj = datetime.strptime(fecha, '%Y-%m-%d').date()
+            hora_entrada_obj = datetime.strptime(hora_entrada, '%H:%M').time()
+            hora_salida_obj = datetime.strptime(hora_salida, '%H:%M').time()
+
+            # Validar que no haya conflictos de horarios
+            conflicto = TurnoProfesional.query.filter_by(
+                fecha=fecha_obj,
+                id_usuario=id_usuario
+            ).filter(
+                (TurnoProfesional.hora_entrada <= hora_salida_obj) & 
+                (TurnoProfesional.hora_salida >= hora_entrada_obj)
+            ).first()
+
+            if conflicto:
+                flash('El horario seleccionado ya está ocupado', 'error')
+                return redirect(url_for('main.agendar_turno'))
+
+            # Crear el nuevo turno
+            nuevo_turno = TurnoProfesional(
+                id_usuario=id_usuario,
+                fecha=fecha_obj,
+                hora_entrada=hora_entrada_obj,
+                hora_salida=hora_salida_obj
+            )
+
+            print(f"Creando turno: {nuevo_turno.__dict__}")  # Debug
+
+            db.session.add(nuevo_turno)
+            db.session.commit()
+
+            print("Turno guardado exitosamente")  # Debug
+
+            flash('Turno agendado exitosamente', 'success')
+            return redirect(url_for('main.gestionar_turnos'))
+
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error al agendar turno: {str(e)}")  # Debug
+            flash(f'Error al agendar el turno: {str(e)}', 'error')
             return redirect(url_for('main.agendar_turno'))
-
-        # Crear el nuevo turno
-        nuevo_turno = TurnoProfesional(
-            id_profesional=id_profesional,
-            fecha=fecha,
-            hora_entrada=hora_entrada,
-            hora_salida=hora_salida
-        )
-        db.session.add(nuevo_turno)
-        db.session.commit()
-        return redirect(url_for('main.gestionar_turnos'))
 
     # Si es un GET, mostramos el formulario
     profesionales = db.session.query(Profesional, Usuario).join(
         Usuario, Profesional.id_usuario == Usuario.id_usuario
     ).all()
-    return render_template('agendar_turno.html', profesionales=profesionales)
+    return render_template('agendar_turno.html', profesionales=profesionales, hoy=datetime.now().strftime('%Y-%m-%d'))
 
 # Ruta para atender pacientes (panel profesional)
 @main_bp.route('/atender_paciente')
 @login_required
 def atender_paciente():
-    # Verificar que el usuario sea profesional
     if current_user.tipo_usuario != 'profesional':
-        flash('No tienes permisos para acceder a esta página', 'danger')
+        flash('No tienes permisos para acceder a esta página', 'error')
         return redirect(url_for('main.dashboard'))
     
-    # Aquí iría la lógica para mostrar los pacientes a atender
-    return render_template('atender_paciente.html')
+    fecha = request.args.get('fecha')
+    estado = request.args.get('estado')
+    
+    # Obtener el profesional asociado al usuario actual
+    profesional = Profesional.query.filter_by(id_usuario=current_user.id_usuario).first()
+    if not profesional:
+        flash('No se encontró el perfil profesional', 'error')
+        return redirect(url_for('main.dashboard'))
+    
+    # Consulta base para las reservas del profesional
+    query = Reserva.query.filter_by(id_profesional=profesional.id_profesional)
+    
+    # Aplicar filtros si se proporcionan
+    if fecha:
+        fecha_obj = datetime.strptime(fecha, '%Y-%m-%d').date()
+        query = query.filter_by(fecha=fecha_obj)
+    if estado:
+        query = query.filter_by(estado=estado)
+    
+    # Obtener las reservas
+    reservas = query.order_by(Reserva.fecha, Reserva.hora).all()
+    
+    # Preparar los datos para la plantilla
+    citas = []
+    for reserva in reservas:
+        paciente = Usuario.query.get(reserva.id_paciente)
+        if paciente:
+            citas.append({
+                'id': reserva.id_reserva,
+                'paciente': paciente.nombre_completo,
+                'fecha': reserva.fecha,
+                'hora': reserva.hora,
+                'estado': reserva.estado,
+                'motivo': getattr(reserva, 'motivo_consulta', 'No especificado')
+            })
+    
+    return render_template('atender_paciente.html', citas=citas, fecha_hoy=datetime.now())
 
 # Ruta para ver la ficha del paciente
 @main_bp.route('/ver_ficha_paciente')
@@ -296,8 +386,7 @@ def ver_ficha_profesional(id):
 def registrar_profesional():
     # Verificar que el usuario sea administrador
     if current_user.tipo_usuario != 'admin':
-        flash('No tienes permisos para realizar esta acción', 'danger')
-        return redirect(url_for('main.dashboard'))
+        return jsonify({'success': False, 'message': 'No tienes permisos para realizar esta acción'})
     
     try:
         # Obtener datos del formulario
@@ -311,13 +400,11 @@ def registrar_profesional():
 
         # Verificar si el nombre de usuario ya existe
         if Usuario.query.filter_by(nombre_usuario=nombre_usuario).first():
-            flash('El nombre de usuario ya está en uso', 'warning')
-            return redirect(url_for('main.gestionar_profesionales'))
+            return jsonify({'success': False, 'message': 'El nombre de usuario ya está en uso'})
 
         # Verificar si el correo ya existe
         if Usuario.query.filter_by(correo=correo).first():
-            flash('El correo electrónico ya está en uso', 'warning')
-            return redirect(url_for('main.gestionar_profesionales'))
+            return jsonify({'success': False, 'message': 'El correo electrónico ya está en uso'})
 
         # Crear nuevo usuario
         nuevo_usuario = Usuario(
@@ -340,13 +427,11 @@ def registrar_profesional():
         db.session.add(nuevo_profesional)
         db.session.commit()
 
-        flash('¡Profesional registrado exitosamente!', 'success')
-        return redirect(url_for('main.gestionar_profesionales'))
+        return jsonify({'success': True, 'message': '¡Profesional registrado exitosamente!'})
 
     except Exception as e:
         db.session.rollback()
-        flash(f'Error al registrar el profesional: {str(e)}', 'danger')
-        return redirect(url_for('main.gestionar_profesionales'))
+        return jsonify({'success': False, 'message': f'Error al registrar el profesional: {str(e)}'})
 
 @main_bp.route('/editar_profesional/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -414,10 +499,35 @@ def eliminar_profesional(id):
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Error al eliminar el profesional: {str(e)}'})
 
+@main_bp.route('/obtener_eventos_box/<int:box_id>')
+@login_required
+def obtener_eventos_box(box_id):
+    try:
+        # Obtener todos los agendamientos del box
+        agendamientos = DisponibilidadBox.query.filter_by(id_box=box_id).all()
+        
+        eventos = []
+        for agendamiento in agendamientos:
+            # Obtener el profesional asociado
+            profesional = Profesional.query.filter_by(id_usuario=agendamiento.id_profesional).first()
+            if profesional:
+                eventos.append({
+                    'fecha': agendamiento.fecha.strftime('%Y-%m-%d'),
+                    'hora_inicio': agendamiento.hora_inicio.strftime('%H:%M'),
+                    'hora_fin': agendamiento.hora_fin.strftime('%H:%M'),
+                    'box_id': agendamiento.id_box,
+                    'profesional_id': agendamiento.id_profesional,
+                    'profesional_nombre': profesional.usuario.nombre_completo,
+                    'estado': 'ocupado'
+                })
+        
+        return jsonify({'success': True, 'eventos': eventos})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
 @main_bp.route('/agendar_box', methods=['POST'])
 @login_required
 def agendar_box():
-    # Verificar que el usuario sea administrador
     if current_user.tipo_usuario != 'admin':
         return jsonify({'success': False, 'message': 'No tienes permisos para realizar esta acción'})
     
@@ -425,9 +535,9 @@ def agendar_box():
         # Obtener datos del agendamiento
         data = request.get_json()
         box_id = data.get('box_id')
-        fecha = data.get('fecha')
-        hora_inicio = data.get('hora_inicio')
-        hora_fin = data.get('hora_fin')
+        fecha = datetime.strptime(data.get('fecha'), '%Y-%m-%d').date()
+        hora_inicio = datetime.strptime(data.get('hora_inicio'), '%H:%M').time()
+        hora_fin = datetime.strptime(data.get('hora_fin'), '%H:%M').time()
         profesional_id = data.get('profesional_id')
 
         # Verificar que todos los campos necesarios estén presentes
@@ -435,15 +545,16 @@ def agendar_box():
             return jsonify({'success': False, 'message': 'Faltan datos requeridos'})
 
         # Verificar si el box está disponible en ese horario
-        disponibilidad_existente = DisponibilidadBox.query.filter_by(
+        conflicto = DisponibilidadBox.query.filter_by(
             id_box=box_id,
             fecha=fecha
         ).filter(
             (DisponibilidadBox.hora_inicio <= hora_inicio) & (DisponibilidadBox.hora_fin >= hora_inicio) |
-            (DisponibilidadBox.hora_inicio <= hora_fin) & (DisponibilidadBox.hora_fin >= hora_fin)
+            (DisponibilidadBox.hora_inicio <= hora_fin) & (DisponibilidadBox.hora_fin >= hora_fin) |
+            (DisponibilidadBox.hora_inicio >= hora_inicio) & (DisponibilidadBox.hora_fin <= hora_fin)
         ).first()
 
-        if disponibilidad_existente:
+        if conflicto:
             return jsonify({'success': False, 'message': 'El box ya está ocupado en ese horario'})
 
         # Crear nuevo agendamiento
@@ -451,8 +562,10 @@ def agendar_box():
             id_box=box_id,
             fecha=fecha,
             hora_inicio=hora_inicio,
-            hora_fin=hora_fin
+            hora_fin=hora_fin,
+            id_profesional=profesional_id
         )
+        
         db.session.add(nuevo_agendamiento)
         db.session.commit()
 
@@ -515,10 +628,95 @@ def crear_boxes():
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Error al crear los boxes: {str(e)}'})
 
+@main_bp.route('/chat_paciente')
+@login_required
+def chat_paciente():
+    if current_user.tipo_usuario not in ['paciente', 'ambos']:
+        flash('No tienes permisos para acceder a esta página', 'error')
+        return redirect(url_for('main.dashboard'))
+    
+    # Obtener lista de profesionales
+    profesionales = Profesional.query.join(Usuario).all()
+    return render_template('chat_paciente.html', profesionales=profesionales)
+
 @main_bp.route('/chat_profesional')
 @login_required
 def chat_profesional():
-    return render_template('chat_profesional.html')
+    if current_user.tipo_usuario not in ['profesional', 'ambos']:
+        flash('No tienes permisos para acceder a esta página', 'error')
+        return redirect(url_for('main.dashboard'))
+    
+    # Obtener lista de pacientes
+    pacientes = Usuario.query.filter_by(tipo_usuario='paciente').all()
+    return render_template('chat_profesional.html', pacientes=pacientes)
+
+@main_bp.route('/chat/mensajes/<int:usuario_id>')
+@login_required
+def obtener_mensajes(usuario_id):
+    # Obtener mensajes entre el usuario actual y el usuario especificado
+    mensajes = Chat.query.filter(
+        ((Chat.id_emisor == current_user.id_usuario) & (Chat.id_receptor == usuario_id)) |
+        ((Chat.id_emisor == usuario_id) & (Chat.id_receptor == current_user.id_usuario))
+    ).order_by(Chat.fecha_envio.asc()).all()
+    
+    return jsonify([{
+        'id': msg.id_chat,
+        'contenido': msg.mensaje,
+        'fecha_hora': msg.fecha_envio.strftime('%Y-%m-%d %H:%M:%S'),
+        'id_remitente': msg.id_emisor
+    } for msg in mensajes])
+
+@main_bp.route('/chat/enviar', methods=['POST'])
+@login_required
+def enviar_mensaje():
+    data = request.get_json()
+    nuevo_mensaje = Chat(
+        id_emisor=current_user.id_usuario,
+        id_receptor=data['id_destinatario'],
+        mensaje=data['contenido'],
+        fecha_envio=datetime.now()
+    )
+    db.session.add(nuevo_mensaje)
+    db.session.commit()
+    
+    # Emitir el mensaje a través de Socket.IO
+    socketio.emit('receive_message', {
+        'message': data['contenido'],
+        'sender': 'profesional' if current_user.tipo_usuario == 'profesional' else 'paciente',
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    }, room=f"chat_{data['id_destinatario']}")
+    
+    return jsonify({'success': True})
+
+@socketio.on('connect')
+def handle_connect():
+    if current_user.is_authenticated:
+        join_room(f"chat_{current_user.id_usuario}")
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    if current_user.is_authenticated:
+        leave_room(f"chat_{current_user.id_usuario}")
+
+@socketio.on('send_message')
+def handle_send_message(data):
+    if not current_user.is_authenticated:
+        return
+    
+    nuevo_mensaje = Chat(
+        id_emisor=current_user.id_usuario,
+        id_receptor=data['profesional_id'],
+        mensaje=data['message'],
+        fecha_envio=datetime.now()
+    )
+    db.session.add(nuevo_mensaje)
+    db.session.commit()
+    
+    emit('receive_message', {
+        'message': data['message'],
+        'sender': 'profesional' if current_user.tipo_usuario == 'profesional' else 'paciente',
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    }, room=f"chat_{data['profesional_id']}")
 
 @main_bp.route('/cambiar_turno/<int:id_turno>', methods=['GET', 'POST'])
 @login_required
@@ -554,6 +752,139 @@ def cambiar_turno(id_turno):
 
     return render_template('cambiar_turno.html', turno=turno)
 
+@main_bp.route('/descargar_ficha_paciente_pdf/<int:id_paciente>')
+@login_required
+def descargar_ficha_paciente_pdf(id_paciente):
+    # Verificar que el usuario sea paciente
+    if current_user.tipo_usuario != 'paciente':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('main.dashboard'))
+    
+    # Obtener el paciente y su ficha
+    paciente = Usuario.query.get_or_404(id_paciente)
+    ficha = FichaPaciente.query.filter_by(id_usuario=id_paciente).first()
+
+    # Generar PDF
+    from flask import make_response
+    from io import BytesIO
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
+    from reportlab.lib.units import inch
+    import os
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
+    styles = getSampleStyleSheet()
+    story = []
+
+    # Estilo personalizado para títulos
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        spaceAfter=30,
+        textColor=colors.HexColor('#2c3e50')
+    )
+
+    # Estilo para subtítulos
+    subtitle_style = ParagraphStyle(
+        'CustomSubtitle',
+        parent=styles['Heading2'],
+        fontSize=16,
+        spaceAfter=12,
+        textColor=colors.HexColor('#3498db')
+    )
+
+    # Estilo para texto normal
+    normal_style = ParagraphStyle(
+        'CustomNormal',
+        parent=styles['Normal'],
+        fontSize=12,
+        spaceAfter=12
+    )
+
+    # Agregar logo
+    logo_path = os.path.join('static', 'images', 'NextFlow_Logo_Titulo-preview.png')
+    if os.path.exists(logo_path):
+        img = Image(logo_path, width=1.5*inch, height=0.75*inch)
+        story.append(img)
+        story.append(Spacer(1, 20))
+
+    # Título principal
+    story.append(Paragraph("Ficha del Paciente", title_style))
+    story.append(Spacer(1, 20))
+
+    # Información Personal
+    story.append(Paragraph("Información Personal", subtitle_style))
+    
+    # Crear tabla para información personal
+    personal_data = [
+        ["RUT:", f"{paciente.rut}-{paciente.dv}"],
+        ["Nombre:", paciente.nombre_completo],
+        ["Correo:", paciente.correo],
+        ["Teléfono:", paciente.telefono],
+        ["Dirección:", paciente.direccion],
+        ["Fecha de Nacimiento:", paciente.fecha_nacimiento.strftime('%d/%m/%Y') if paciente.fecha_nacimiento else 'No especificada']
+    ]
+    
+    personal_table = Table(personal_data, colWidths=[2*inch, 4*inch])
+    personal_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#f5f5f5')),
+        ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#2c3e50')),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e0e0e0'))
+    ]))
+    
+    story.append(personal_table)
+    story.append(Spacer(1, 20))
+
+    # Información Médica
+    story.append(Paragraph("Información Médica", subtitle_style))
+    
+    # Crear tabla para información médica
+    medical_data = [
+        ["Antecedentes Médicos:", ficha.antecedentes_medicos if ficha else 'No registrado'],
+        ["Alergias:", ficha.alergias if ficha else 'No registrado'],
+        ["Medicamentos Actuales:", ficha.medicamentos_actuales if ficha else 'No registrado'],
+        ["Observaciones:", ficha.observaciones if ficha else 'No registrado']
+    ]
+    
+    medical_table = Table(medical_data, colWidths=[2*inch, 4*inch])
+    medical_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#f5f5f5')),
+        ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#2c3e50')),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e0e0e0'))
+    ]))
+    
+    story.append(medical_table)
+    story.append(Spacer(1, 20))
+
+    # Pie de página
+    story.append(Paragraph("Este documento fue generado automáticamente por el sistema NextFlow", 
+                          ParagraphStyle('Footer', parent=styles['Normal'], fontSize=10, textColor=colors.gray)))
+    story.append(Paragraph(f"Fecha de generación: {datetime.now().strftime('%d/%m/%Y %H:%M')}", 
+                          ParagraphStyle('Footer', parent=styles['Normal'], fontSize=10, textColor=colors.gray)))
+
+    # Construir el PDF
+    doc.build(story)
+
+    buffer.seek(0)
+    response = make_response(buffer.read())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=ficha_paciente_{id_paciente}.pdf'
+
+    return response
+
 @main_bp.route('/descargar_perfil_medico_pdf/<int:id_profesional>')
 @login_required
 def descargar_perfil_medico_pdf(id_profesional):
@@ -567,18 +898,111 @@ def descargar_perfil_medico_pdf(id_profesional):
     from flask import make_response
     from io import BytesIO
     from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
+    from reportlab.lib.units import inch
+    import os
 
     buffer = BytesIO()
-    p = canvas.Canvas(buffer)
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
+    styles = getSampleStyleSheet()
+    story = []
 
-    p.drawString(100, 750, "Perfil del Médico")
-    p.drawString(100, 730, f"Nombre: {profesional.usuario.nombre_completo}")
-    p.drawString(100, 710, f"Especialidad: {profesional.especialidad}")
-    p.drawString(100, 690, f"Correo: {profesional.usuario.correo}")
-    p.drawString(100, 670, f"Teléfono: {profesional.usuario.telefono}")
+    # Estilo personalizado para títulos
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        spaceAfter=30,
+        textColor=colors.HexColor('#2c3e50')
+    )
 
-    p.showPage()
-    p.save()
+    # Estilo para subtítulos
+    subtitle_style = ParagraphStyle(
+        'CustomSubtitle',
+        parent=styles['Heading2'],
+        fontSize=16,
+        spaceAfter=12,
+        textColor=colors.HexColor('#3498db')
+    )
+
+    # Estilo para texto normal
+    normal_style = ParagraphStyle(
+        'CustomNormal',
+        parent=styles['Normal'],
+        fontSize=12,
+        spaceAfter=12
+    )
+
+    # Agregar logo
+    logo_path = os.path.join('static', 'images', 'NextFlow_Logo_Titulo-preview.png')
+    if os.path.exists(logo_path):
+        img = Image(logo_path, width=1.5*inch, height=0.75*inch)
+        story.append(img)
+        story.append(Spacer(1, 20))
+
+    # Título principal
+    story.append(Paragraph("Perfil del Profesional", title_style))
+    story.append(Spacer(1, 20))
+
+    # Información Personal
+    story.append(Paragraph("Información Personal", subtitle_style))
+    
+    # Crear tabla para información personal
+    personal_data = [
+        ["Nombre:", profesional.usuario.nombre_completo],
+        ["Correo:", profesional.usuario.correo],
+        ["Teléfono:", profesional.usuario.telefono],
+        ["Especialidad:", profesional.especialidad]
+    ]
+    
+    personal_table = Table(personal_data, colWidths=[2*inch, 4*inch])
+    personal_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#f5f5f5')),
+        ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#2c3e50')),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e0e0e0'))
+    ]))
+    
+    story.append(personal_table)
+    story.append(Spacer(1, 20))
+
+    # Información Profesional
+    story.append(Paragraph("Información Profesional", subtitle_style))
+    
+    # Crear tabla para información profesional
+    professional_data = [
+        ["Perfil:", profesional.perfil],
+        ["Certificación:", profesional.certificacion if profesional.certificacion else 'No especificada']
+    ]
+    
+    professional_table = Table(professional_data, colWidths=[2*inch, 4*inch])
+    professional_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#f5f5f5')),
+        ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#2c3e50')),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e0e0e0'))
+    ]))
+    
+    story.append(professional_table)
+    story.append(Spacer(1, 20))
+
+    # Pie de página
+    story.append(Paragraph("Este documento fue generado automáticamente por el sistema NextFlow", 
+                          ParagraphStyle('Footer', parent=styles['Normal'], fontSize=10, textColor=colors.gray)))
+    story.append(Paragraph(f"Fecha de generación: {datetime.now().strftime('%d/%m/%Y %H:%M')}", 
+                          ParagraphStyle('Footer', parent=styles['Normal'], fontSize=10, textColor=colors.gray)))
+
+    # Construir el PDF
+    doc.build(story)
 
     buffer.seek(0)
     response = make_response(buffer.read())
@@ -587,18 +1011,89 @@ def descargar_perfil_medico_pdf(id_profesional):
 
     return response
 
-@socketio.on('connect')
-def handle_connect():
-    print('Cliente conectado')
+@main_bp.route('/agendar_cita_paciente')
+@login_required
+def agendar_cita_paciente():
+    if current_user.tipo_usuario != 'paciente':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('main.dashboard'))
+    
+    # Obtener profesionales con sus datos de usuario
+    profesionales = Profesional.query.join(Usuario).all()
+    
+    # Obtener la fecha mínima (mañana)
+    fecha_minima = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+    
+    return render_template('agendar_cita_paciente.html', 
+                         profesionales=profesionales,
+                         fecha_minima=fecha_minima)
 
-@socketio.on('disconnect')
-def handle_disconnect():
-    print('Cliente desconectado')
+@main_bp.route('/obtener_horas_disponibles/<int:profesional_id>/<fecha>')
+@login_required
+def obtener_horas_disponibles(profesional_id, fecha):
+    try:
+        # Obtener las horas ocupadas del profesional en la fecha especificada
+        citas_ocupadas = Reserva.query.filter_by(
+            id_profesional=profesional_id,
+            fecha=datetime.strptime(fecha, '%Y-%m-%d').date()
+        ).all()
 
-@socketio.on('send_message')
-def handle_send_message(data):
-    # Aquí se manejará el envío de mensajes
-    emit('receive_message', data, broadcast=True)
+        # Horas disponibles (de 9:00 a 18:00)
+        horas_disponibles = []
+        hora_inicio = datetime.strptime('09:00', '%H:%M')
+        hora_fin = datetime.strptime('18:00', '%H:%M')
+        
+        while hora_inicio < hora_fin:
+            hora_str = hora_inicio.strftime('%H:%M')
+            # Verificar si la hora está ocupada
+            if not any(cita.hora.strftime('%H:%M') == hora_str for cita in citas_ocupadas):
+                horas_disponibles.append(hora_str)
+            hora_inicio += timedelta(minutes=30)  # Intervalos de 30 minutos
+
+        return jsonify({'success': True, 'horas': horas_disponibles})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@main_bp.route('/agendar_cita', methods=['POST'])
+@login_required
+def agendar_cita():
+    if current_user.tipo_usuario != 'paciente':
+        return jsonify({'success': False, 'message': 'No tienes permisos para realizar esta acción'})
+    
+    try:
+        data = request.get_json()
+        profesional_id = data.get('profesional_id')
+        fecha = datetime.strptime(data.get('fecha'), '%Y-%m-%d').date()
+        hora = datetime.strptime(data.get('hora'), '%H:%M').time()
+        motivo = data.get('motivo')
+
+        # Verificar si ya existe una cita en ese horario
+        cita_existente = Reserva.query.filter_by(
+            id_profesional=profesional_id,
+            fecha=fecha,
+            hora=hora
+        ).first()
+
+        if cita_existente:
+            return jsonify({'success': False, 'message': 'El horario seleccionado ya está ocupado'})
+
+        # Crear nueva reserva
+        nueva_reserva = Reserva(
+            id_paciente=current_user.id_usuario,
+            id_profesional=profesional_id,
+            fecha=fecha,
+            hora=hora,
+            estado='pendiente',
+            motivo_consulta=motivo
+        )
+
+        db.session.add(nueva_reserva)
+        db.session.commit()
+
+        return jsonify({'success': True, 'message': 'Cita agendada con éxito'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error al agendar la cita: {str(e)}'})
 
 
 

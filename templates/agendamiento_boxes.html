@@ -200,6 +200,8 @@
                         if (data.success) {
                             eventos = data.eventos;
                             generarCalendario();
+                        } else {
+                            console.error('Error al cargar eventos:', data.error);
                         }
                     })
                     .catch(error => {
@@ -207,17 +209,15 @@
                     });
             }
 
-            // Función para verificar si hay conflicto de horarios en el mismo box
+            // Función para verificar si hay conflicto de horarios
             function hayConflictoHorario(fecha, horaInicio, horaFin, boxId) {
                 return eventos.some(evento => {
                     if (evento.fecha === fecha && evento.box_id === boxId) {
-                        // Convertir horas a minutos para facilitar la comparación
                         const inicioNuevo = convertirHoraAMinutos(horaInicio);
                         const finNuevo = convertirHoraAMinutos(horaFin);
                         const inicioExistente = convertirHoraAMinutos(evento.hora_inicio);
                         const finExistente = convertirHoraAMinutos(evento.hora_fin);
 
-                        // Verificar si hay solapamiento
                         return (inicioNuevo >= inicioExistente && inicioNuevo < finExistente) ||
                                (finNuevo > inicioExistente && finNuevo <= finExistente) ||
                                (inicioNuevo <= inicioExistente && finNuevo >= finExistente);
@@ -428,7 +428,7 @@
                     return;
                 }
 
-                // Verificar si hay conflicto de horarios en el mismo box
+                // Verificar si hay conflicto de horarios
                 const fechaStr = fechaSeleccionada.toISOString().split('T')[0];
                 if (hayConflictoHorario(fechaStr, horaInicio, horaFin, boxSeleccionado)) {
                     alert('El box ya está ocupado en ese horario');
@@ -441,12 +441,8 @@
                     hora_inicio: horaInicio,
                     hora_fin: horaFin,
                     box_id: boxSeleccionado,
-                    profesional_id: profesionalSeleccionado,
-                    profesional_nombre: profesionalSelect.options[profesionalSelect.selectedIndex].text,
-                    estado: 'ocupado' // Estado fijo como ocupado
+                    profesional_id: profesionalSeleccionado
                 };
-
-                console.log('Datos del agendamiento:', agendamiento);
 
                 // Enviar el agendamiento al servidor
                 fetch('/agendar_box', {
@@ -459,10 +455,8 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Agregar el evento al array local
-                        eventos.push(agendamiento);
-                        // Actualizar el calendario
-                        generarCalendario();
+                        // Recargar los eventos del box
+                        cargarEventosBox();
                         // Cerrar el modal
                         document.getElementById('modalAgendamiento').style.display = 'none';
                         // Limpiar los campos

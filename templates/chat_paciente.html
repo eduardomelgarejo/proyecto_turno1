@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='images/NextFlow_Logo_blanco.png') }}">
-    <title>Chat Profesional - NEXTFLOW</title>
+    <title>Chat con Profesionales - NEXTFLOW</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat_paciente.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat_profesional.css') }}">
 </head>
 <body>
     <div class="chat-container">
@@ -15,35 +15,36 @@
                 <i class="fas fa-arrow-left"></i>
                 Volver al Panel
             </a>
-            <h1>Chat con Pacientes</h1>
+            <h1>Chat con Profesionales</h1>
         </div>
-        
+
         <div class="chat-main">
-            <div class="pacientes-lista">
+            <!-- Lista de profesionales -->
+            <div class="profesionales-lista">
                 <div class="busqueda">
-                    <input type="text" id="buscarPaciente" placeholder="Buscar paciente...">
+                    <input type="text" id="buscarProfesional" placeholder="Buscar profesional...">
                     <i class="fas fa-search"></i>
                 </div>
-                <div class="lista" id="listaPacientes">
-                    {% for paciente in pacientes %}
-                    <div class="paciente-item" data-id="{{ paciente.id_usuario }}">
-                        <div class="paciente-info">
-                            <h3>{{ paciente.nombre_completo }}</h3>
-                            <p>{{ paciente.correo }}</p>
+                <div class="lista" id="listaProfesionales">
+                    {% for profesional in profesionales %}
+                    <div class="profesional-item" data-id="{{ profesional.id_usuario }}">
+                        <div class="profesional-info">
+                            <h3>{{ profesional.usuario.nombre_completo }}</h3>
+                            <p>{{ profesional.especialidad }}</p>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
             </div>
-            
+
+            <!-- Área de chat -->
             <div class="chat-area">
                 <div class="chat-messages" id="chatMessages">
                     <!-- Los mensajes se cargarán dinámicamente -->
                 </div>
-                
                 <div class="chat-input">
-                    <input type="text" id="mensajeInput" placeholder="Escribe un mensaje...">
-                    <button id="enviarMensaje">
+                    <input type="text" id="messageInput" placeholder="Escribe un mensaje...">
+                    <button id="sendButton">
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
@@ -58,17 +59,16 @@
         
         document.addEventListener('DOMContentLoaded', function() {
             const socket = io();
-            const listaPacientes = document.getElementById('listaPacientes');
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
             const chatMessages = document.getElementById('chatMessages');
-            const mensajeInput = document.getElementById('mensajeInput');
-            const enviarMensaje = document.getElementById('enviarMensaje');
-            const buscarPaciente = document.getElementById('buscarPaciente');
-            
-            let pacienteSeleccionado = null;
-            
+            const buscarProfesional = document.getElementById('buscarProfesional');
+            const listaProfesionales = document.getElementById('listaProfesionales');
+            let profesionalSeleccionado = null;
+
             // Función para cargar mensajes
-            function cargarMensajes(idPaciente) {
-                fetch(`/chat/mensajes/${idPaciente}`)
+            function cargarMensajes(idProfesional) {
+                fetch(`/chat/mensajes/${idProfesional}`)
                     .then(response => response.json())
                     .then(data => {
                         chatMessages.innerHTML = '';
@@ -102,25 +102,14 @@
                         console.error('Error al cargar mensajes:', error);
                     });
             }
-            
-            // Seleccionar paciente
-            listaPacientes.addEventListener('click', function(e) {
-                const pacienteItem = e.target.closest('.paciente-item');
-                if (pacienteItem) {
-                    document.querySelectorAll('.paciente-item').forEach(item => item.classList.remove('seleccionado'));
-                    pacienteItem.classList.add('seleccionado');
-                    pacienteSeleccionado = pacienteItem.dataset.id;
-                    cargarMensajes(pacienteSeleccionado);
-                }
-            });
-            
-            // Enviar mensaje
-            function enviarMensajeHandler() {
-                if (!pacienteSeleccionado || !mensajeInput.value.trim()) return;
+
+            // Función para enviar mensaje
+            function sendMessage() {
+                if (!profesionalSeleccionado || !messageInput.value.trim()) return;
                 
                 const mensaje = {
-                    id_destinatario: pacienteSeleccionado,
-                    contenido: mensajeInput.value.trim()
+                    id_destinatario: profesionalSeleccionado,
+                    contenido: messageInput.value.trim()
                 };
                 
                 fetch('/chat/enviar', {
@@ -133,8 +122,8 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        mensajeInput.value = '';
-                        cargarMensajes(pacienteSeleccionado);
+                        messageInput.value = '';
+                        cargarMensajes(profesionalSeleccionado);
                     } else {
                         console.error('Error al enviar mensaje:', data.message);
                     }
@@ -143,32 +132,44 @@
                     console.error('Error al enviar mensaje:', error);
                 });
             }
-            
-            enviarMensaje.addEventListener('click', enviarMensajeHandler);
-            mensajeInput.addEventListener('keypress', function(e) {
+
+            // Event listeners
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
-                    enviarMensajeHandler();
+                    sendMessage();
                 }
             });
-            
-            // Buscar paciente
-            buscarPaciente.addEventListener('input', function(e) {
+
+            // Búsqueda de profesionales
+            buscarProfesional.addEventListener('input', function(e) {
                 const busqueda = e.target.value.toLowerCase();
-                document.querySelectorAll('.paciente-item').forEach(item => {
+                document.querySelectorAll('.profesional-item').forEach(item => {
                     const nombre = item.querySelector('h3').textContent.toLowerCase();
-                    const email = item.querySelector('p').textContent.toLowerCase();
-                    if (nombre.includes(busqueda) || email.includes(busqueda)) {
+                    const especialidad = item.querySelector('p').textContent.toLowerCase();
+                    if (nombre.includes(busqueda) || especialidad.includes(busqueda)) {
                         item.style.display = 'flex';
                     } else {
                         item.style.display = 'none';
                     }
                 });
             });
-            
+
+            // Selección de profesional
+            listaProfesionales.addEventListener('click', function(e) {
+                const profesionalItem = e.target.closest('.profesional-item');
+                if (profesionalItem) {
+                    document.querySelectorAll('.profesional-item').forEach(item => item.classList.remove('seleccionado'));
+                    profesionalItem.classList.add('seleccionado');
+                    profesionalSeleccionado = profesionalItem.dataset.id;
+                    cargarMensajes(profesionalSeleccionado);
+                }
+            });
+
             // Recibir mensajes en tiempo real
             socket.on('receive_message', function(data) {
-                if (pacienteSeleccionado) {
-                    cargarMensajes(pacienteSeleccionado);
+                if (profesionalSeleccionado) {
+                    cargarMensajes(profesionalSeleccionado);
                 }
             });
         });

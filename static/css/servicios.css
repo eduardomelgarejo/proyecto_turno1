@@ -311,22 +311,35 @@ footer {
     .precios-slider {
         flex-direction: column;
         align-items: center;
-        gap: 1.5rem;
+        gap: 2rem;
+        padding: 1rem;
     }
 
     .precio-card {
         width: 100%;
-        max-width: 300px;
+        max-width: 100%;
+        margin: 0;
+        height: auto;
         min-height: auto;
-        margin-bottom: 1rem;
+        overflow: visible;
     }
 
     .precio-card.destacado {
         transform: none;
+        order: -1;
     }
 
     .precio-card.destacado:hover {
         transform: translateY(-10px);
+    }
+
+    .precios-container h2 {
+        font-size: 2rem;
+    }
+
+    .precios-subtitle {
+        font-size: 1.1rem;
+        padding: 0 1rem;
     }
 }
 
@@ -349,16 +362,39 @@ footer {
     }
 
     .precio-card {
-        padding: 1rem;
-        margin-bottom: 0.75rem;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .precio-header h3 {
+        font-size: 1.3rem;
     }
 
     .precio {
         font-size: 1.8rem;
     }
 
+    .precio .valor {
+        font-size: 1.8rem;
+    }
+
+    .precio-features {
+        margin: 0.75rem 0;
+    }
+
     .precio-features li {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        padding: 0.25rem 0;
+    }
+
+    .precios-container h2 {
+        font-size: 1.8rem;
+    }
+
+    .precios-subtitle {
+        font-size: 1rem;
+        padding: 0 1rem;
     }
 
     .header-description {
@@ -368,18 +404,19 @@ footer {
 
 /* Sección de Precios */
 .precios-section {
-    padding: 1rem 0 3rem 0;
+    padding: 4rem 0;
     background: linear-gradient(135deg, 
         rgba(44, 62, 80, 0.03) 0%, 
         rgba(52, 152, 219, 0.03) 50%, 
         rgba(231, 76, 60, 0.03) 100%);
+    overflow: hidden;
 }
 
 .precios-container {
     max-width: 1200px;
     margin: 0 auto;
-    text-align: center;
     padding: 0 1rem;
+    text-align: center;
 }
 
 .precios-container h2 {
@@ -400,6 +437,8 @@ footer {
     gap: 1.5rem;
     padding: 0;
     flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .precio-card {
@@ -415,7 +454,9 @@ footer {
     min-height: auto;
     margin-bottom: 0;
     border: none;
-    overflow: hidden;
+    overflow: visible;
+    width: 100%;
+    max-width: 350px;
 }
 
 .precio-card::before {
@@ -574,22 +615,67 @@ footer {
 }
 
 @media (max-width: 768px) {
+    .precios-section {
+        padding: 3rem 0;
+    }
+
+    .precios-slider {
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+        padding: 1rem;
+    }
+
     .precio-card {
-        padding: 1.5rem;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        height: auto;
+        min-height: auto;
+        overflow: visible;
+    }
+
+    .precio-card.destacado {
+        transform: none;
+        order: -1;
+    }
+
+    .precio-card.destacado:hover {
+        transform: translateY(-10px);
+    }
+
+    .precio-features {
+        margin: 1rem 0;
+        padding: 0;
+    }
+
+    .precio-features li {
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .precio-header {
+        margin-bottom: 1rem;
     }
 
     .precio {
-        font-size: 2rem;
-    }
-
-    .precio .valor {
-        font-size: 2rem;
+        margin: 0.5rem 0;
     }
 }
 
 @media (max-width: 480px) {
+    .precios-section {
+        padding: 2rem 0;
+    }
+
+    .precios-slider {
+        gap: 1.5rem;
+        padding: 0.5rem;
+    }
+
     .precio-card {
         padding: 1.25rem;
+        margin-bottom: 1rem;
     }
 
     .precio-header h3 {
@@ -604,7 +690,22 @@ footer {
         font-size: 1.8rem;
     }
 
+    .precio-features {
+        margin: 0.75rem 0;
+    }
+
     .precio-features li {
         font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        padding: 0.25rem 0;
+    }
+
+    .precios-container h2 {
+        font-size: 1.8rem;
+    }
+
+    .precios-subtitle {
+        font-size: 1rem;
+        padding: 0 1rem;
     }
 } 
