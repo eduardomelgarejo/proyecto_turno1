@@ -12,10 +12,6 @@ Plataforma web de gestión médica desarrollada en Flask. Este sistema permite a
   - [ ] Que sea escalable y se pueda descargar en PDF (WeasyPrint).
 - [ ] Alerta de reserva o cambio de hora.
 
-### 💬 Comunicación
-- [ ] Chat entre paciente y profesional:
-  - [ ] Que ambos puedan comunicarse entre sí.
-
 ### 🛠️ Panel de Administración
 - [ ] Validación del calendario:
   - [ ] Asegurar que no existan topones entre horarios.
@@ -23,7 +19,7 @@ Plataforma web de gestión médica desarrollada en Flask. Este sistema permite a
 
 ### 🩺 Panel Profesional
 - [ ] Agregar rutas a los dos primeros botones del panel.
-- [ ] Añadir mensajes de error y confirmación en los formularios.
+
 
 ### 🔐 Seguridad
 - [ ] Implementar token de sesión utilizando `Flask-Session`.
@@ -32,8 +28,7 @@ Plataforma web de gestión médica desarrollada en Flask. Este sistema permite a
 
 ## 📈 Escalabilidad (Futuras mejoras)
 
-- [ ] Descargar perfil del médico en PDF (WeasyPrint).
-- [ ] Descargar ficha del paciente en PDF (WeasyPrint).
+
 - [ ] Validar la certificación del médico.
 - [ ] Asistente virtual integrado.
 - [ ] Recordatorio de citas:
