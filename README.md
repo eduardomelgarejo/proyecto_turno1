@@ -16,6 +16,8 @@ Plataforma web de gestión médica desarrollada en Flask. Este sistema permite a
 - [ ] Validación del calendario:
   - [ ] Asegurar que no existan topones entre horarios.
 - [ ] Ingreso y registro de boxes médicos.
+  - [ ]al registrar el box , se le asigna de inmediato un profesional al box?
+     
 
 ### 🩺 Panel Profesional
 - [ ] Agregar rutas a los dos primeros botones del panel.
